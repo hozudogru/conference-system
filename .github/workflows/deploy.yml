@@ -60,4 +60,4 @@ jobs:
               --exclude 'appsettings.json' \
               --exclude 'wwwroot/uploads' \
               /var/www/myapp_deploy/publish/ /var/www/myapp/
-            systemctl restart ConferenceSystem.Web
+            systemctl restart myapp.service
