@@ -1,0 +1,481 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.Session>
+
+@{
+    ViewData["Title"] = "Program Editörü";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var conference = ViewBag.Conference as ConferenceSystem.Web.Entities.Conference;
+    var allSubmissions = ViewBag.AllSubmissions as List<ConferenceSystem.Web.Entities.Submission>
+                         ?? new List<ConferenceSystem.Web.Entities.Submission>();
+
+    var assignedSubmissionIds = ViewBag.AssignedSubmissionIds as HashSet<long>
+                                ?? new HashSet<long>();
+}
+
+<h1 class="mb-4">Program Editörü</h1>
+
+@if (conference != null)
+{
+    <div class="mb-3">
+        <strong>@conference.Name</strong>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="mb-3 d-flex flex-wrap gap-2">
+    <a href="/Admin/Schedule/Generate?conferenceId=@ViewBag.ConferenceId&roomCount=2" class="btn btn-primary">2 Salonlu Otomatik Oluştur</a>
+    <a href="/Admin/Schedule/Generate?conferenceId=@ViewBag.ConferenceId&roomCount=3" class="btn btn-outline-primary">3 Salonlu Otomatik Oluştur</a>
+    <a href="/Program?conferenceId=@ViewBag.ConferenceId" class="btn btn-success">Public Program</a>
+    <a href="/Admin/Schedule/Import?conferenceId=@ViewBag.ConferenceId" class="btn btn-outline-success">Excel'den İçe Aktar</a>
+    <a href="/Admin/Schedule/DownloadTemplate" class="btn btn-outline-secondary">Şablon İndir</a>
+    <button type="button" class="btn btn-dark" onclick="saveSchedule()">Sıralamayı Kaydet</button>
+</div>
+
+<style>
+    .schedule-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 420px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .sessions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .session-list {
+        min-height: 140px;
+        background: #f8f9fa;
+        border: 1px dashed #ced4da;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .schedule-item,
+    .pool-item {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        cursor: move;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    .pool-panel {
+        position: sticky;
+        top: 90px;
+    }
+
+    .pool-list {
+        max-height: 78vh;
+        overflow-y: auto;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .pool-item.disabled-item {
+        opacity: .55;
+        cursor: not-allowed;
+        background: #f1f3f5;
+    }
+
+    .drop-zone-empty {
+        color: #6c757d;
+        font-size: .9rem;
+        padding: 8px;
+    }
+
+    .sortable-ghost {
+        opacity: .45;
+    }
+
+    .sortable-chosen {
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, .20);
+    }
+
+    .meta-row {
+        font-size: .85rem;
+        color: #6c757d;
+    }
+
+    .small-badge {
+        font-size: .75rem;
+    }
+
+    @@media (max-width: 1200px) {
+        .schedule-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sessions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pool-panel {
+            position: static;
+        }
+    }
+</style>
+
+<div class="schedule-layout">
+    <div>
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning">
+                Henüz oturum oluşturulmamış. Önce otomatik oluşturabilir ya da Excel'den içe aktarabilirsiniz.
+            </div>
+        }
+
+        <div class="sessions-grid">
+            @foreach (var session in Model)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <div><strong>@session.Title</strong></div>
+                        <div class="small text-muted">
+                            @session.StartTime.ToString("dd.MM.yyyy HH:mm") - @session.EndTime.ToString("HH:mm")
+                            | @session.Room
+                            @if (!string.IsNullOrWhiteSpace(session.ChairName))
+                            {
+                                <text>| Chair: @session.ChairName</text>
+                            }
+                        </div>
+                        <div class="mt-2">
+                            <a href="/Admin/Schedule/EditSession/@session.Id" class="btn btn-sm btn-warning">Oturumu Düzenle</a>
+                        </div>
+                    </div>
+
+                    <div class="card-body session-list" data-session-id="@session.Id">
+                        @if (!session.Items.Any())
+                        {
+                            <div class="drop-zone-empty">Buraya bildiri sürükleyin.</div>
+                        }
+
+                        @foreach (var item in session.Items.OrderBy(x => x.Order))
+                        {
+                            <div class="schedule-item"
+                                 data-item-id="@item.Id"
+                                 data-submission-id="@item.SubmissionId">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div>
+                                            <strong>@item.Submission?.SubmissionNumber</strong> - @item.Submission?.Title
+                                        </div>
+                                        <div class="meta-row">@item.Submission?.AuthorFullName</div>
+                                        @if (!string.IsNullOrWhiteSpace(item.Submission?.Institution))
+                                        {
+                                            <div class="meta-row">@item.Submission?.Institution</div>
+                                        }
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFromSession(this)">
+                                        Çıkar
+                                    </button>
+                                </div>
+
+                                <div class="mt-2">
+                                    <label class="form-label small mb-1">Süre (dk)</label>
+                                    <input type="number"
+                                           class="form-control form-control-sm duration-input"
+                                           value="@item.PresentationMinutes"
+                                           min="5"
+                                           max="60" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="pool-panel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Tüm Bildiriler</strong>
+                <div class="small text-muted mt-1">
+                    Sağ panelden yalnızca <strong>Accepted</strong> ve henüz programa alınmamış bildiriler sürüklenebilir.
+                </div>
+            </div>
+            <div class="card-body">
+                <input type="text" id="submissionSearch" class="form-control mb-3" placeholder="Bildiri ara..." />
+                <div id="submissionPool" class="pool-list">
+                    @foreach (var sub in allSubmissions)
+                    {
+                        var isAssigned = assignedSubmissionIds.Contains(sub.Id);
+                        var isAccepted = string.Equals(sub.Status?.Trim(), "Accepted", StringComparison.OrdinalIgnoreCase);
+                        var canDrag = isAccepted && !isAssigned;
+
+                        <div class="pool-item @(canDrag ? "" : "disabled-item")"
+                             data-submission-id="@sub.Id"
+                             data-search="@($"{sub.SubmissionNumber} {sub.Title} {sub.AuthorFullName} {sub.Institution} {sub.Status}".ToLowerInvariant())"
+                             data-can-drag="@(canDrag ? "true" : "false")">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div><strong>@sub.SubmissionNumber</strong> - @sub.Title</div>
+                                    <div class="meta-row">@sub.AuthorFullName</div>
+                                    @if (!string.IsNullOrWhiteSpace(sub.Institution))
+                                    {
+                                        <div class="meta-row">@sub.Institution</div>
+                                    }
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-secondary small-badge">@sub.Status</span>
+                                    @if (isAssigned)
+                                    {
+                                        <div class="mt-1">
+                                            <span class="badge bg-dark small-badge">Programda</span>
+                                        </div>
+                                    }
+                                    else if (!isAccepted)
+                                    {
+                                        <div class="mt-1">
+                                            <span class="badge bg-warning text-dark small-badge">Taşınamaz</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="mt-1">
+                                            <span class="badge bg-success small-badge">Sürüklenebilir</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!allSubmissions.Any())
+                    {
+                        <div class="text-muted">Bu konferansa ait bildiri bulunamadı.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        function createSessionItemFromPool(poolEl) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'schedule-item';
+        wrapper.dataset.submissionId = poolEl.dataset.submissionId;
+
+        const titleHtml = poolEl.querySelector('strong')?.parentElement?.innerHTML ?? '';
+        const metaRows = poolEl.querySelectorAll('.meta-row');
+
+        let metaHtml = '';
+        metaRows.forEach(x => {
+        metaHtml += `<div class="meta-row">${x.innerHTML}</div>`;
+        });
+
+        wrapper.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start gap-2">
+        <div>
+        <div>${titleHtml}</div>
+        ${metaHtml}
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFromSession(this)">
+        Çıkar
+        </button>
+        </div>
+        <div class="mt-2">
+        <label class="form-label small mb-1">Süre (dk)</label>
+        <input type="number" class="form-control form-control-sm duration-input" value="15" min="5" max="60" />
+        </div>
+        `;
+
+        return wrapper;
+        }
+
+        function refreshEmptyTexts() {
+        document.querySelectorAll('.session-list').forEach(list => {
+        const hasItems = list.querySelectorAll('.schedule-item').length > 0;
+        const emptyEl = list.querySelector('.drop-zone-empty');
+
+        if (!hasItems && !emptyEl) {
+        const div = document.createElement('div');
+        div.className = 'drop-zone-empty';
+        div.textContent = 'Buraya bildiri sürükleyin.';
+        list.appendChild(div);
+        }
+
+        if (hasItems && emptyEl) {
+        emptyEl.remove();
+        }
+        });
+        }
+
+        function markPoolItemAssigned(submissionId, assigned) {
+        const poolItem = document.querySelector(`#submissionPool .pool-item[data-submission-id="${submissionId}"]`);
+        if (!poolItem) return;
+
+        const badgeContainer = poolItem.querySelector('.text-end');
+        if (!badgeContainer) return;
+
+        poolItem.classList.toggle('disabled-item', assigned);
+        poolItem.dataset.canDrag = assigned ? "false" : "true";
+
+        const existingProgramBadge = badgeContainer.querySelector('.programda-badge');
+        const existingDragBadge = badgeContainer.querySelector('.drag-badge');
+
+        if (existingProgramBadge) existingProgramBadge.remove();
+        if (existingDragBadge) existingDragBadge.remove();
+
+        const statusBadge = badgeContainer.querySelector('.badge.bg-secondary');
+        const statusText = statusBadge ? statusBadge.textContent.trim().toLowerCase() : '';
+
+        if (assigned) {
+        const div = document.createElement('div');
+        div.className = 'mt-1 programda-badge';
+        div.innerHTML = `<span class="badge bg-dark small-badge">Programda</span>`;
+        badgeContainer.appendChild(div);
+        } else if (statusText === 'accepted') {
+        const div = document.createElement('div');
+        div.className = 'mt-1 drag-badge';
+        div.innerHTML = `<span class="badge bg-success small-badge">Sürüklenebilir</span>`;
+        badgeContainer.appendChild(div);
+        }
+        }
+
+        function removeFromSession(button) {
+        const item = button.closest('.schedule-item');
+        if (!item) return;
+
+        const submissionId = item.dataset.submissionId;
+        item.remove();
+        refreshEmptyTexts();
+
+        const stillExistsInAnySession = document.querySelector(`.session-list .schedule-item[data-submission-id="${submissionId}"]`);
+        if (!stillExistsInAnySession) {
+        markPoolItemAssigned(submissionId, false);
+        }
+        }
+
+        document.querySelectorAll('.session-list').forEach(list => {
+        new Sortable(list, {
+        group: {
+        name: 'sessions',
+        put: true,
+        pull: true
+        },
+        animation: 150,
+        onAdd: function () {
+        refreshEmptyTexts();
+        },
+        onSort: function () {
+        refreshEmptyTexts();
+        }
+        });
+        });
+
+        new Sortable(document.getElementById('submissionPool'), {
+        group: {
+        name: 'sessions',
+        pull: 'clone',
+        put: false
+        },
+        sort: false,
+        animation: 150,
+        filter: '.disabled-item',
+        onMove: function (evt) {
+        const dragged = evt.dragged;
+        if (!dragged) return false;
+
+        return dragged.dataset.canDrag === "true";
+        },
+        onClone: function (evt) {
+        evt.clone.classList.remove('disabled-item');
+        },
+        onEnd: function (evt) {
+        const fromPool = evt.from && evt.from.id === 'submissionPool';
+        const droppedIntoSession = evt.to && evt.to.classList.contains('session-list');
+
+        if (!fromPool || !droppedIntoSession)
+        return;
+
+        const originalPoolItem = evt.item;
+        const submissionId = originalPoolItem.dataset.submissionId;
+
+        const alreadyExists = Array.from(document.querySelectorAll('.session-list .schedule-item'))
+        .filter(x => x !== evt.item)
+        .some(x => x.dataset.submissionId === submissionId);
+
+        if (alreadyExists) {
+        evt.item.remove();
+        alert('Bu bildiri zaten bir oturuma eklenmiş.');
+        refreshEmptyTexts();
+        return;
+        }
+
+        const newItem = createSessionItemFromPool(originalPoolItem);
+        evt.item.replaceWith(newItem);
+        markPoolItemAssigned(submissionId, true);
+        refreshEmptyTexts();
+        }
+        });
+
+        refreshEmptyTexts();
+
+        document.getElementById('submissionSearch')?.addEventListener('input', function () {
+        const q = (this.value || '').trim().toLowerCase();
+
+        document.querySelectorAll('#submissionPool .pool-item').forEach(item => {
+        const haystack = item.dataset.search || '';
+        item.style.display = haystack.includes(q) ? '' : 'none';
+        });
+        });
+
+        async function saveSchedule() {
+        const payload = [];
+
+        document.querySelectorAll('.session-list').forEach(sessionEl => {
+        const sessionId = parseInt(sessionEl.dataset.sessionId);
+        let order = 1;
+
+        sessionEl.querySelectorAll('.schedule-item').forEach(itemEl => {
+        const itemIdRaw = itemEl.dataset.itemId;
+        const submissionIdRaw = itemEl.dataset.submissionId;
+        const duration = parseInt(itemEl.querySelector('.duration-input')?.value || '15');
+
+        payload.push({
+        sessionItemId: itemIdRaw ? parseInt(itemIdRaw) : null,
+        submissionId: submissionIdRaw ? parseInt(submissionIdRaw) : 0,
+        targetSessionId: sessionId,
+        order: order,
+        presentationMinutes: duration
+        });
+
+        order++;
+        });
+        });
+
+        const response = await fetch('/Admin/Schedule/SaveOrder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+        alert('Program kaydedildi.');
+        location.reload();
+        } else {
+        alert(result.message || 'Kayıt sırasında hata oluştu.');
+        }
+        } else {
+        alert('Kayıt sırasında hata oluştu.');
+        }
+        }
+    </script>
+}

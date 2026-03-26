@@ -1,0 +1,590 @@
+﻿@model ConferenceSystem.Web.Entities.Submission
+@using ConferenceSystem.Web.Entities
+
+@{
+    ViewData["Title"] = "Bildiri Detayı";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var assignments = ViewBag.Assignments as List<ReviewAssignment> ?? new List<ReviewAssignment>();
+    var reviews = ViewBag.Reviews as List<Review> ?? new List<Review>();
+    var decisions = ViewBag.Decisions as List<EditorialDecision> ?? new List<EditorialDecision>();
+    var revisionFiles = ViewBag.RevisionFiles as List<RevisionFile> ?? new List<RevisionFile>();
+    var latestDecision = ViewBag.LatestDecision as EditorialDecision;
+
+    var assignmentCount = (int)(ViewBag.AssignmentCount ?? 0);
+    var completedReviewCount = (int)(ViewBag.CompletedReviewCount ?? 0);
+    var pendingReviewCount = (int)(ViewBag.PendingReviewCount ?? 0);
+    var hasRevisionFile = (bool)(ViewBag.HasRevisionFile ?? false);
+    var hasDecision = (bool)(ViewBag.HasDecision ?? false);
+
+    var isSubmitted = true;
+    var isAssigned = assignmentCount > 0;
+    var isUnderReview = assignmentCount > 0 && completedReviewCount < assignmentCount;
+    var isReviewed = completedReviewCount > 0;
+    var isDecisionMade = hasDecision;
+    var isRevisionUploaded = hasRevisionFile;
+
+    string GetStatusBadgeClass(string? status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-secondary",
+            "Under Review" => "bg-info text-dark",
+            "Reviewed" => "bg-primary",
+            "Accepted" => "bg-success",
+            "Revision Required" => "bg-warning text-dark",
+            "Rejected" => "bg-danger",
+            "Revised Submitted" => "bg-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStageClass(bool completed, bool active = false)
+    {
+        if (completed) return "stage-done";
+        if (active) return "stage-active";
+        return "stage-wait";
+    }
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<style>
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 170px;
+        display: inline-block;
+    }
+
+    .process-timeline {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .process-stage {
+        border-radius: 14px;
+        padding: 14px 12px;
+        border: 1px solid #dee2e6;
+        background: #f8f9fa;
+        min-height: 120px;
+        position: relative;
+    }
+
+        .process-stage .stage-no {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .process-stage .stage-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .process-stage .stage-text {
+            font-size: .9rem;
+            color: #6c757d;
+            line-height: 1.35rem;
+        }
+
+    .stage-done {
+        background: #ecfdf3;
+        border-color: #a7f3d0;
+    }
+
+        .stage-done .stage-no {
+            background: #198754;
+            color: #fff;
+        }
+
+    .stage-active {
+        background: #eef6ff;
+        border-color: #9ec5fe;
+    }
+
+        .stage-active .stage-no {
+            background: #0d6efd;
+            color: #fff;
+        }
+
+    .stage-wait {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+    }
+
+        .stage-wait .stage-no {
+            background: #adb5bd;
+            color: #fff;
+        }
+
+    .info-mini-card {
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        background: #fff;
+        padding: 16px;
+        height: 100%;
+    }
+
+        .info-mini-card .mini-title {
+            font-size: .9rem;
+            color: #6c757d;
+            margin-bottom: 6px;
+        }
+
+        .info-mini-card .mini-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+    .process-table th {
+        white-space: nowrap;
+        background: #f8f9fa;
+    }
+
+    .subsection-title {
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+    .review-box,
+    .decision-box,
+    .revision-box {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 14px;
+        background: #fff;
+        margin-bottom: 12px;
+    }
+
+    .meta-muted {
+        color: #6c757d;
+        font-size: .92rem;
+    }
+
+    @@media (max-width: 1200px) {
+        .process-timeline {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .process-timeline {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<h1 class="mb-4">Bildiri Detayı</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h4 class="card-title mb-3">@Model.Title</h4>
+
+        <p><span class="detail-label">Başvuru No:</span> @Model.SubmissionNumber</p>
+        <p><span class="detail-label">Konferans:</span> @Model.Conference?.Name</p>
+        <p><span class="detail-label">Yazar:</span> @Model.AuthorFullName</p>
+        <p><span class="detail-label">E-posta:</span> @Model.Email</p>
+        <p><span class="detail-label">Kurum:</span> @Model.Institution</p>
+        <p>
+            <span class="detail-label">Durum:</span>
+            <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+        </p>
+        <p><span class="detail-label">Gönderim Tarihi:</span> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Keywords))
+        {
+            <p><span class="detail-label">Anahtar Kelimeler:</span> @Model.Keywords</p>
+        }
+
+        <div class="mb-3">
+            <strong>Özet:</strong>
+            <div class="border rounded p-3 mt-2 bg-light">
+                @Model.AbstractText
+            </div>
+        </div>
+
+        <p>
+            <strong>Dosya:</strong>
+            @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+            {
+                <a href="@Model.FilePath" target="_blank">Dosyayı Aç</a>
+            }
+            else
+            {
+                <span>Dosya yok</span>
+            }
+        </p>
+
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <a href="/Admin/Submissions/EditStatus/@Model.Id" class="btn btn-warning">Durum Güncelle</a>
+            <a href="/Admin/ReviewAssignments/Create?submissionId=@Model.Id" class="btn btn-info">Hakem Ata</a>
+            <a href="/Admin/EditorialDecisions/Create?submissionId=@Model.Id" class="btn btn-success">Nihai Karar Ver</a>
+            <a href="/Admin/EditorialDecisions/DownloadLetter?submissionId=@Model.Id" class="btn btn-dark">Karar Mektubu PDF</a>
+            <a href="/Admin/EditorialDecisions/SendDecisionEmail?submissionId=@Model.Id" class="btn btn-primary">Karar Maili Gönder</a>
+            <a href="/Admin/Submissions" class="btn btn-secondary">Listeye Dön</a>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>Bildiri Süreç Şeması</strong>
+    </div>
+    <div class="card-body">
+        <div class="process-timeline">
+            <div class="process-stage @GetStageClass(isSubmitted, Model.Status == "Pending")">
+                <div class="stage-no">1</div>
+                <div class="stage-title">Gönderildi</div>
+                <div class="stage-text">
+                    Bildiri sisteme yüklendi.<br />
+                    <strong>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</strong>
+                </div>
+            </div>
+
+            <div class="process-stage @GetStageClass(isAssigned, Model.Status == "Under Review")">
+                <div class="stage-no">2</div>
+                <div class="stage-title">Hakem Atandı</div>
+                <div class="stage-text">
+                    Atanan hakem sayısı: <strong>@assignmentCount</strong><br />
+                    Bekleyen değerlendirme: <strong>@pendingReviewCount</strong>
+                </div>
+            </div>
+
+            <div class="process-stage @GetStageClass(isReviewed, isUnderReview)">
+                <div class="stage-no">3</div>
+                <div class="stage-title">Değerlendirme</div>
+                <div class="stage-text">
+                    Tamamlanan değerlendirme: <strong>@completedReviewCount</strong><br />
+                    @(completedReviewCount > 0 ? "En az bir hakem raporu sisteme düştü." : "Henüz hakem raporu yok.")
+                </div>
+            </div>
+
+            <div class="process-stage @GetStageClass(isDecisionMade, Model.Status == "Reviewed")">
+                <div class="stage-no">4</div>
+                <div class="stage-title">Editör Kararı</div>
+                <div class="stage-text">
+                    @if (latestDecision != null)
+                    {
+                        <text>
+                            <strong>@latestDecision.DecisionType</strong><br />
+                            @latestDecision.DecidedAt.ToString("dd.MM.yyyy HH:mm")
+                        </text>
+                    }
+                    else
+                    {
+                        <text>Henüz editoryal karar verilmedi.</text>
+                    }
+                </div>
+            </div>
+
+            <div class="process-stage @GetStageClass(isRevisionUploaded, Model.Status == "Revision Required" || Model.Status == "Revised Submitted")">
+                <div class="stage-no">5</div>
+                <div class="stage-title">Revizyon</div>
+                <div class="stage-text">
+                    Yüklenen revizyon dosyası: <strong>@revisionFiles.Count</strong><br />
+                    @(revisionFiles.Any() ? "Yazar revizyon yükledi." : "Henüz revizyon dosyası yok.")
+                </div>
+            </div>
+
+            <div class="process-stage @GetStageClass(Model.Status == "Accepted" || Model.Status == "Rejected" || Model.Status == "Revised Submitted", true)">
+                <div class="stage-no">6</div>
+                <div class="stage-title">Mevcut Durum</div>
+                <div class="stage-text">
+                    <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="info-mini-card">
+            <div class="mini-title">Atanan Hakem</div>
+            <div class="mini-value">@assignmentCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-mini-card">
+            <div class="mini-title">Tamamlanan Review</div>
+            <div class="mini-value">@completedReviewCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-mini-card">
+            <div class="mini-title">Karar Kaydı</div>
+            <div class="mini-value">@(decisions.Count)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-mini-card">
+            <div class="mini-title">Revizyon Dosyası</div>
+            <div class="mini-value">@(revisionFiles.Count)</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>Süreç Tablosu</strong>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle process-table">
+                <thead>
+                    <tr>
+                        <th style="width:220px;">Süreç Adımı</th>
+                        <th>Durum</th>
+                        <th>Tarih</th>
+                        <th>Açıklama</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Başvuru Alındı</td>
+                        <td><span class="badge bg-success">Tamamlandı</span></td>
+                        <td>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>Bildiri sisteme başarıyla yüklenmiş.</td>
+                    </tr>
+                    <tr>
+                        <td>Hakem Atama</td>
+                        <td>
+                            @if (assignments.Any())
+                            {
+                                <span class="badge bg-success">Tamamlandı</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Bekliyor</span>
+                            }
+                        </td>
+                        <td>@(assignments.Any() ? assignments.First().AssignedAt.ToString("dd.MM.yyyy HH:mm") : "-")</td>
+                        <td>@assignmentCount adet hakem ataması mevcut.</td>
+                    </tr>
+                    <tr>
+                        <td>Hakem Değerlendirmeleri</td>
+                        <td>
+                            @if (reviews.Any())
+                            {
+                                <span class="badge bg-primary">Kısmen / Tamamlandı</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Bekliyor</span>
+                            }
+                        </td>
+                        <td>@(reviews.Any() ? reviews.Max(x => x.SubmittedAt).ToString("dd.MM.yyyy HH:mm") : "-")</td>
+                        <td>@completedReviewCount / @assignmentCount değerlendirme tamamlanmış.</td>
+                    </tr>
+                    <tr>
+                        <td>Editoryal Karar</td>
+                        <td>
+                            @if (latestDecision != null)
+                            {
+                                <span class="badge bg-success">Karar Verildi</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Bekliyor</span>
+                            }
+                        </td>
+                        <td>@(latestDecision != null ? latestDecision.DecidedAt.ToString("dd.MM.yyyy HH:mm") : "-")</td>
+                        <td>@(latestDecision != null ? latestDecision.DecisionType : "Henüz karar kaydı yok.")</td>
+                    </tr>
+                    <tr>
+                        <td>Revizyon Yükleme</td>
+                        <td>
+                            @if (revisionFiles.Any())
+                            {
+                                <span class="badge bg-success">Yüklendi</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Yok</span>
+                            }
+                        </td>
+                        <td>@(revisionFiles.Any() ? revisionFiles.Max(x => x.UploadedAt).ToString("dd.MM.yyyy HH:mm") : "-")</td>
+                        <td>@revisionFiles.Count adet revizyon dosyası sisteme yüklenmiş.</td>
+                    </tr>
+                    <tr>
+                        <td>Sistemdeki Son Durum</td>
+                        <td><span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span></td>
+                        <td>-</td>
+                        <td>Submission tablosundaki güncel workflow durumu.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Hakem Atamaları</strong>
+            </div>
+            <div class="card-body">
+                @if (assignments.Any())
+                {
+                    foreach (var item in assignments)
+                    {
+                        <div class="review-box">
+                            <div><strong>@item.Reviewer?.FullName</strong></div>
+                            <div class="meta-muted">Atama Tarihi: @item.AssignedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            <div class="mt-2">
+                                Durum:
+                                <span class="badge @(item.Status == "Completed" ? "bg-success" : "bg-info text-dark")">
+                                    @item.Status
+                                </span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">Bu bildiri için henüz hakem ataması yapılmamış.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Hakem Raporları</strong>
+            </div>
+            <div class="card-body">
+                @if (reviews.Any())
+                {
+                    foreach (var item in reviews)
+                    {
+                        <div class="review-box">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <strong>@item.ReviewAssignment?.Reviewer?.FullName</strong>
+                                    <div class="meta-muted">@item.SubmittedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary">@item.Recommendation</span>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3 g-2">
+                                <div class="col-6">Özgünlük: <strong>@item.OriginalityScore</strong></div>
+                                <div class="col-6">Yöntem: <strong>@item.MethodScore</strong></div>
+                                <div class="col-6">Uygunluk: <strong>@item.RelevanceScore</strong></div>
+                                <div class="col-6">Yazım: <strong>@item.WritingScore</strong></div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.CommentToEditor))
+                            {
+                                <div class="mt-3">
+                                    <strong>Editöre Not:</strong>
+                                    <div class="border rounded p-2 bg-light mt-1">@item.CommentToEditor</div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.CommentToAuthor))
+                            {
+                                <div class="mt-3">
+                                    <strong>Yazara Not:</strong>
+                                    <div class="border rounded p-2 bg-light mt-1">@item.CommentToAuthor</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">Bu bildiri için henüz hakem raporu girilmemiş.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Editoryal Kararlar</strong>
+            </div>
+            <div class="card-body">
+                @if (decisions.Any())
+                {
+                    foreach (var item in decisions)
+                    {
+                        <div class="decision-box">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <strong>@item.DecisionType</strong>
+                                    <div class="meta-muted">@item.DecidedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.DecisionNote))
+                            {
+                                <div class="mt-3">
+                                    <strong>Karar Notu:</strong>
+                                    <div class="border rounded p-2 bg-light mt-1">@item.DecisionNote</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">Henüz editoryal karar kaydı bulunmuyor.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Revizyon Dosyaları</strong>
+            </div>
+            <div class="card-body">
+                @if (revisionFiles.Any())
+                {
+                    foreach (var item in revisionFiles)
+                    {
+                        <div class="revision-box">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <strong>Revizyon Dosyası</strong>
+                                    <div class="meta-muted">@item.UploadedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                </div>
+                                <div>
+                                    @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                    {
+                                        <a href="@item.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">Aç</a>
+                                    }
+                                </div>
+                            </div>
+                            <div class="meta-muted mt-2">@item.FilePath</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">Bu bildiri için revizyon dosyası bulunmuyor.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

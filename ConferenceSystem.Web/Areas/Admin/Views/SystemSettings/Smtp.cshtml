@@ -1,0 +1,111 @@
+﻿@model ConferenceSystem.Web.ViewModels.SmtpSettingsViewModel
+
+@{
+    ViewData["Title"] = "SMTP Ayarları";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">SMTP Ayarları</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["MailLog"] != null)
+{
+    <div class="alert alert-info">
+        <strong>SMTP Log:</strong>
+        <pre class="mt-2 mb-0" style="white-space:pre-wrap;">@TempData["MailLog"]</pre>
+    </div>
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-area="Admin" asp-controller="SystemSettings" asp-action="Smtp" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Host" class="form-label">Host</label>
+                <input asp-for="Host" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Port" class="form-label">Port</label>
+                <input asp-for="Port" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label">User Name</label>
+                <input asp-for="UserName" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FromEmail" class="form-label">From E-mail</label>
+                <input asp-for="FromEmail" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FromName" class="form-label">From Name</label>
+                <input asp-for="FromName" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SecurityMode" class="form-label">Security Mode</label>
+                <select asp-for="SecurityMode" asp-items="ViewBag.SecurityModes" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TimeoutMilliseconds" class="form-label">Timeout (ms)</label>
+                <input asp-for="TimeoutMilliseconds" class="form-control" />
+            </div>
+
+            <div class="form-check mb-2">
+                <input asp-for="UseSsl" class="form-check-input" />
+                <label asp-for="UseSsl" class="form-check-label">Use SSL</label>
+            </div>
+
+            <div class="form-check mb-4">
+                <input asp-for="RequireAuthentication" class="form-check-input" />
+                <label asp-for="RequireAuthentication" class="form-check-label">Require Authentication</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+        </form>
+
+        <hr class="my-4" />
+
+        <h4>Test Mail Gönder</h4>
+
+        <form asp-area="Admin" asp-controller="SystemSettings" asp-action="SendTestMail" method="post">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="Host" type="hidden" />
+            <input asp-for="Port" type="hidden" />
+            <input asp-for="UserName" type="hidden" />
+            <input asp-for="Password" type="hidden" />
+            <input asp-for="FromEmail" type="hidden" />
+            <input asp-for="FromName" type="hidden" />
+            <input asp-for="SecurityMode" type="hidden" />
+            <input asp-for="TimeoutMilliseconds" type="hidden" />
+            <input asp-for="UseSsl" type="hidden" />
+            <input asp-for="RequireAuthentication" type="hidden" />
+
+            <div class="mb-3">
+                <label asp-for="TestEmail" class="form-label">Test E-mail</label>
+                <input asp-for="TestEmail" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-outline-secondary">Test Mail Gönder</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+﻿@model ConferenceSystem.Web.ViewModels.ReviewerLoginViewModel
+
+@{
+    ViewData["Title"] = "Hakem Magic Link";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Hakem Magic Link</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="RequestMagicLink" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">E-posta</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Giriş Linki Gönder</button>
+            </form>
+        </div>
+    </div>
+</div>

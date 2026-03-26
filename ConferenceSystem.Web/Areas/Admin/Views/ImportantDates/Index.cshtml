@@ -1,0 +1,40 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.ImportantDate>
+
+@{
+    ViewData["Title"] = "Önemli Tarihler";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Önemli Tarihler</h1>
+    <a href="/Admin/ImportantDates/Create" class="btn btn-primary">Yeni Tarih</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Konferans</th>
+            <th>Başlık</th>
+            <th>Tarih</th>
+            <th>Sıra</th>
+            <th>Aktif</th>
+            <th style="width:180px;">İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Conference?.Name</td>
+                <td>@item.Title</td>
+                <td>@item.DateValue.ToString("dd.MM.yyyy")</td>
+                <td>@item.SortOrder</td>
+                <td>@(item.IsActive ? "Evet" : "Hayır")</td>
+                <td>
+                    <a href="/Admin/ImportantDates/Edit/@item.Id" class="btn btn-sm btn-warning">Düzenle</a>
+                    <a href="/Admin/ImportantDates/Delete/@item.Id" class="btn btn-sm btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

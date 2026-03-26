@@ -1,0 +1,26 @@
+﻿@model ConferenceSystem.Web.Entities.Announcement
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-4">
+    <h1 class="mb-3">@Model.Title</h1>
+    <p class="text-muted">@Model.PublishDate.ToString("dd.MM.yyyy HH:mm")</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Summary))
+    {
+        <div class="mb-3">
+            <strong>Özet:</strong>
+            <p>@Model.Summary</p>
+        </div>
+    }
+
+    <div>
+        @Html.Raw(Model.Content)
+    </div>
+
+    <div class="mt-4">
+        <a href="/Announcements" class="btn btn-secondary">Geri</a>
+    </div>
+</div>

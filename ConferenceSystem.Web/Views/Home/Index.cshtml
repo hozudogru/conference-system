@@ -1,0 +1,259 @@
+@model ConferenceSystem.Web.ViewModels.HomePageViewModel
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var hp = Model.HomePageSetting;
+    var conference = Model.ActiveConference;
+}
+
+<div class="home-page-wrap">
+    @if (conference != null)
+    {
+        <section class="hero-panel">
+            <div>
+                @if (!string.IsNullOrWhiteSpace(hp?.HeroBadgeText))
+                {
+                    <div class="hero-badge">@hp.HeroBadgeText</div>
+                }
+                else
+                {
+                    <div class="hero-badge">@conference.StartDate.ToString("dd MMMM yyyy") - @conference.EndDate.ToString("dd MMMM yyyy") • @conference.Location</div>
+                }
+
+                <h1 class="hero-title">
+                    @(string.IsNullOrWhiteSpace(hp?.HeroTitle) ? conference.Name : hp!.HeroTitle)
+                </h1>
+
+                <div class="hero-subtitle">
+                    @(string.IsNullOrWhiteSpace(hp?.HeroDescription) ? conference.Description : hp!.HeroDescription)
+                </div>
+
+                <div class="hero-actions">
+                    <a class="btn-theme" href="@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonUrl) ? "/Submission/Create" : hp!.HeroPrimaryButtonUrl)">
+                        @(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonText) ? "Özet Gönder" : hp!.HeroPrimaryButtonText)
+                    </a>
+                    <a class="btn-theme-outline" href="@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonUrl) ? $"/Program?conferenceId={conference.Id}" : hp!.HeroSecondaryButtonUrl)">
+                        @(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonText) ? "Programı İncele" : hp!.HeroSecondaryButtonText)
+                    </a>
+                </div>
+
+                <div class="quick-cards">
+                    <div class="quick-card">
+                        <div class="quick-card-label">@(hp?.HighlightBox1Title ?? "Özet Başlangıcı")</div>
+                        <div class="quick-card-value">@(string.IsNullOrWhiteSpace(hp?.HighlightBox1Value) ? (Model.ImportantDates.FirstOrDefault()?.DateValue.ToString("dd MMMM yyyy") ?? "TBA") : hp!.HighlightBox1Value)</div>
+                    </div>
+                    <div class="quick-card">
+                        <div class="quick-card-label">@(hp?.HighlightBox2Title ?? "Kongre Tarihi")</div>
+                        <div class="quick-card-value">@(string.IsNullOrWhiteSpace(hp?.HighlightBox2Value) ? $"{conference.StartDate:dd MMMM yyyy} - {conference.EndDate:dd MMMM yyyy}" : hp!.HighlightBox2Value)</div>
+                    </div>
+                    <div class="quick-card">
+                        <div class="quick-card-label">@(hp?.HighlightBox3Title ?? "Tam Metin")</div>
+                        <div class="quick-card-value">@(string.IsNullOrWhiteSpace(hp?.HighlightBox3Value) ? "TBA" : hp!.HighlightBox3Value)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="poster-card">
+                    @if (!string.IsNullOrWhiteSpace(hp?.PosterImageUrl))
+                    {
+                        <img src="@hp.PosterImageUrl" alt="Poster" />
+                    }
+                    else if (!string.IsNullOrWhiteSpace(conference.LogoPath))
+                    {
+                        <img src="@conference.LogoPath" alt="@conference.Name" />
+                    }
+                    else
+                    {
+                        <div class="poster-placeholder">Poster görseli admin panelinden eklenebilir.</div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="home-two-col">
+            @if (hp?.ShowImportantDates != false)
+            {
+                <div class="home-panel">
+                    <h2 class="home-panel-title">Önemli Tarihler</h2>
+                    @if (Model.ImportantDates.Any())
+                    {
+                        @foreach (var item in Model.ImportantDates)
+                        {
+                            <div class="info-row">
+                                <div class="info-row-date">@item.DateValue.ToString("dd MMMM yyyy")</div>
+                                <div class="info-row-content">
+                                    <div class="info-row-title">@item.Title</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        <div class="info-row-desc">@item.Description</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-note">Henüz önemli tarih eklenmedi.</div>
+                    }
+                </div>
+            }
+
+            @if (hp?.ShowRegistrationCategories != false)
+            {
+                <div class="home-panel">
+                    <h2 class="home-panel-title">Kayıt Kategorileri</h2>
+                    @if (Model.RegistrationCategories.Any())
+                    {
+                        @foreach (var item in Model.RegistrationCategories)
+                        {
+                            <div class="info-row fee-row">
+                                <div class="info-row-content">
+                                    <div class="info-row-title">@item.CategoryName</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        <div class="info-row-desc">@item.Description</div>
+                                    }
+                                </div>
+                                <div class="fee-badge">@item.Fee.ToString("N0") @item.Currency</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-note">Henüz kayıt kategorisi eklenmedi.</div>
+                    }
+                </div>
+            }
+        </section>
+
+        @if (hp?.ShowAnnouncements != false)
+        {
+            <section class="home-panel mt-4">
+                <h2 class="home-panel-title">Son Duyurular</h2>
+                @if (Model.Announcements.Any())
+                {
+                    foreach (var item in Model.Announcements)
+                    {
+                        <div class="announcement-row">
+                            <div class="announcement-title">@item.Title</div>
+                            <div class="announcement-date">@item.PublishDate.ToString("dd.MM.yyyy HH:mm")</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Summary))
+                            {
+                                <div class="announcement-summary">@item.Summary</div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-note">Henüz duyuru bulunmuyor.</div>
+                }
+            </section>
+        }
+
+        @if (hp?.ShowSpeakers != false)
+        {
+            <section class="mt-4">
+                <h2 class="section-heading">Davetli Konuşmacılar</h2>
+                @if (Model.Speakers.Any())
+                {
+                    <div class="speakers-grid">
+                        @foreach (var item in Model.Speakers)
+                        {
+                            <div class="speaker-card">
+                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.FullName" />
+                                }
+                                else
+                                {
+                                    <div class="speaker-avatar-placeholder">@item.FullName.Substring(0,1)</div>
+                                }
+                                <div class="speaker-name">@item.FullName</div>
+                                @if (!string.IsNullOrWhiteSpace(item.Title))
+                                {
+                                    <div class="speaker-meta">@item.Title</div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Institution))
+                                {
+                                    <div class="speaker-meta">@item.Institution</div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Bio))
+                                {
+                                    <div class="speaker-bio">@item.Bio</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-note">Davetli konuşmacı bulunmamaktadır.</div>
+                }
+            </section>
+        }
+
+        @if (hp?.ShowCommitteeMembers == true)
+        {
+            <section class="home-panel mt-4">
+                <h2 class="home-panel-title">Kurullar</h2>
+                @if (Model.CommitteeMembers.Any())
+                {
+                    var groups = Model.CommitteeMembers.GroupBy(x => x.CommitteeType).OrderBy(x => x.Key);
+                    foreach (var group in groups)
+                    {
+                        <div class="committee-group">
+                            <div class="committee-title">@group.Key</div>
+                            <ul class="committee-list">
+                                @foreach (var member in group)
+                                {
+                                    <li>
+                                        <strong>@member.FullName</strong>
+                                        @if (!string.IsNullOrWhiteSpace(member.Title))
+                                        {
+                                            <span> - @member.Title</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(member.Institution))
+                                        {
+                                            <div class="committee-inst">@member.Institution</div>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-note">Henüz kurul bilgisi girilmedi.</div>
+                }
+            </section>
+        }
+
+        @if (hp?.ShowContact != false)
+        {
+            <section class="contact-panel">
+                <div>
+                    <h2 class="home-panel-title mb-2">@(string.IsNullOrWhiteSpace(hp?.ContactTitle) ? "İletişim" : hp!.ContactTitle)</h2>
+                    @if (!string.IsNullOrWhiteSpace(hp?.ContactHtml))
+                    {
+                        @Html.Raw(hp.ContactHtml)
+                    }
+                    else
+                    {
+                        <p class="mb-1"><strong>@conference.Location</strong></p>
+                        <p class="mb-0 text-muted">İletişim içeriğini admin panelinden düzenleyebilirsiniz.</p>
+                    }
+                </div>
+                <a class="btn-theme" href="/Access/Login">Katılım / Başvuru</a>
+            </section>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">Aktif konferans bulunamadı.</div>
+    }
+</div>

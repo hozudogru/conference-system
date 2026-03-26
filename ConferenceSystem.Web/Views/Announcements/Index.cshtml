@@ -1,0 +1,33 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.Announcement>
+
+@{
+    ViewData["Title"] = "Duyurular";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Duyurular</h1>
+
+    @if (Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h3 class="h5">@item.Title</h3>
+                    <p class="text-muted mb-2">@item.PublishDate.ToString("dd.MM.yyyy HH:mm")</p>
+
+                    @if (!string.IsNullOrWhiteSpace(item.Summary))
+                    {
+                        <p>@item.Summary</p>
+                    }
+
+                    <a href="/Announcements/Detail/@item.Id" class="btn btn-sm btn-primary">Detay</a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">Henüz duyuru bulunmuyor.</div>
+    }
+</div>

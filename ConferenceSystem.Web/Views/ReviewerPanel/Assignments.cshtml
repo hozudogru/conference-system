@@ -1,0 +1,54 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.ReviewAssignment>
+
+@{
+    ViewData["Title"] = "Atanmış Bildiriler";
+    var reviewer = ViewBag.Reviewer as ConferenceSystem.Web.Entities.Reviewer;
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Atanmış Bildiriler</h1>
+
+    @if (reviewer != null)
+    {
+        <div class="alert alert-info">
+            <strong>Hakem:</strong> @reviewer.FullName (@reviewer.Email)
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            Size atanmış bildiri bulunmuyor.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Konferans</th>
+                    <th>Başlık</th>
+                    <th>Durum</th>
+                    <th>Atama Tarihi</th>
+                    <th style="width:180px;">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Submission?.Conference?.Name</td>
+                        <td>@item.Submission?.Title</td>
+                        <td>@item.Status</td>
+                        <td>@item.AssignedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <a href="/ReviewerReview/Create?reviewAssignmentId=@item.Id" class="btn btn-sm btn-success">
+                                Değerlendir
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

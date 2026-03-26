@@ -1,0 +1,27 @@
+﻿@model ConferenceSystem.Web.Entities.EditorialDecision
+
+@{
+    ViewData["Title"] = "Karar Detayı";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">Karar Detayı</h1>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Bildiri:</strong> @Model.Submission?.Title</p>
+        <p><strong>Karar:</strong> @Model.DecisionType</p>
+        <p><strong>Tarih:</strong> @Model.DecidedAt.ToString("dd.MM.yyyy HH:mm")</p>
+
+        <div class="mt-3">
+            <strong>Karar Notu</strong>
+            <div class="border rounded p-3 mt-2 bg-light">
+                @Model.DecisionNote
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="/Admin/EditorialDecisions" class="btn btn-secondary">Listeye Dön</a>
+        </div>
+    </div>
+</div>

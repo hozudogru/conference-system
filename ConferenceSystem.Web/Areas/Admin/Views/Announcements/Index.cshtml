@@ -1,0 +1,38 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.Announcement>
+
+@{
+    ViewData["Title"] = "Duyurular";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Duyurular</h1>
+    <a href="/Admin/Announcements/Create" class="btn btn-primary">Yeni Duyuru</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Başlık</th>
+            <th>Yayın Tarihi</th>
+            <th>Yayında mı?</th>
+            <th style="width:180px;">İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Title</td>
+                <td>@item.PublishDate.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@(item.IsPublished ? "Evet" : "Hayır")</td>
+                <td>
+                    <a href="/Admin/Announcements/Edit/@item.Id" class="btn btn-sm btn-warning">Düzenle</a>
+                    <a href="/Admin/Announcements/Delete/@item.Id" class="btn btn-sm btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

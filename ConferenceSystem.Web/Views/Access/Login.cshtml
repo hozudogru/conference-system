@@ -1,0 +1,47 @@
+@model ConferenceSystem.Web.ViewModels.AccessLoginViewModel
+
+@{
+    ViewData["Title"] = "Panel Girişi";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-lg-6 col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-3">Tek Giriş Ekranı</h1>
+                <p class="text-muted mb-4">
+                    E-posta adresinizi girin. Yazarsanız başvuru numaranızı da ekleyin. Sistem size uygun giriş linkini gönderecektir.
+                </p>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">@TempData["Success"]</div>
+                }
+
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="ornek@eposta.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SubmissionNumber" class="form-label"></label>
+                        <input asp-for="SubmissionNumber" class="form-control" placeholder="Yazar girişinde doldurun" />
+                        <span asp-validation-for="SubmissionNumber" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Giriş Linki Gönder</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

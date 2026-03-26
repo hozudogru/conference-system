@@ -1,0 +1,37 @@
+﻿@model ConferenceSystem.Web.Entities.Reviewer
+
+@{
+    ViewData["Title"] = "Yeni Hakem";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Yeni Hakem</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="FullName" class="form-label">Ad Soyad</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">E-posta</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Expertise" class="form-label">Uzmanlık</label>
+        <input asp-for="Expertise" class="form-control" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Aktif mi?</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a href="/Admin/Reviewers" class="btn btn-secondary">Geri</a>
+</form>

@@ -1,0 +1,61 @@
+﻿@model ConferenceSystem.Web.Entities.MenuItem
+
+@{
+    ViewData["Title"] = "Menü Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Menü Düzenle</h1>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="MenuLocation" class="form-label">Menü Konumu</label>
+        <select asp-for="MenuLocation" class="form-select">
+            <option value="Public">Public</option>
+            <option value="Admin">Admin</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MenuGroup" class="form-label">Menü Grubu</label>
+        <select asp-for="MenuGroup" class="form-select">
+            <option value="">Grupsuz</option>
+            <option value="Genel">Genel</option>
+            <option value="İçerik">İçerik</option>
+            <option value="Değerlendirme">Değerlendirme</option>
+            <option value="Program & Rapor">Program & Rapor</option>
+            <option value="İletişim">İletişim</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Başlık</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Url" class="form-label">URL</label>
+        <input asp-for="Url" class="form-control" />
+        <span asp-validation-for="Url" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SortOrder" class="form-label">Sıra</label>
+        <input asp-for="SortOrder" class="form-control" />
+    </div>
+
+    <div class="form-check mb-2">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Aktif mi?</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="OpenInNewTab" class="form-check-input" />
+        <label asp-for="OpenInNewTab" class="form-check-label">Yeni sekmede açılsın mı?</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Güncelle</button>
+    <a href="/Admin/MenuItems" class="btn btn-secondary">Geri</a>
+</form>

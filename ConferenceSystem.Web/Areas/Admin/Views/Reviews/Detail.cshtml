@@ -1,0 +1,42 @@
+﻿@model ConferenceSystem.Web.Entities.Review
+
+@{
+    ViewData["Title"] = "Değerlendirme Detayı";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">Değerlendirme Detayı</h1>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Bildiri:</strong> @Model.ReviewAssignment?.Submission?.Title</p>
+        <p><strong>Hakem:</strong> @Model.ReviewAssignment?.Reviewer?.FullName</p>
+        <p><strong>Öneri:</strong> @Model.Recommendation</p>
+        <p><strong>Tarih:</strong> @Model.SubmittedAt.ToString("dd.MM.yyyy HH:mm")</p>
+
+        <hr />
+
+        <p><strong>Özgünlük:</strong> @Model.OriginalityScore / 5</p>
+        <p><strong>Yöntem:</strong> @Model.MethodScore / 5</p>
+        <p><strong>Uygunluk:</strong> @Model.RelevanceScore / 5</p>
+        <p><strong>Yazım:</strong> @Model.WritingScore / 5</p>
+
+        <hr />
+
+        <div class="mb-3">
+            <strong>Yazara Yorum</strong>
+            <div class="border rounded p-3 mt-2 bg-light">
+                @Model.CommentToAuthor
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>Editöre Not</strong>
+            <div class="border rounded p-3 mt-2 bg-light">
+                @Model.CommentToEditor
+            </div>
+        </div>
+
+        <a href="/Admin/Reviews" class="btn btn-secondary">Listeye Dön</a>
+    </div>
+</div>

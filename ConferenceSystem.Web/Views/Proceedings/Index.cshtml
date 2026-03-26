@@ -1,0 +1,38 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.Proceeding>
+
+@{
+    ViewData["Title"] = "Proceedings";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Proceedings</h1>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Konferans</th>
+                <th>Başlık</th>
+                <th>Yazar</th>
+                <th>DOI</th>
+                <th>Dosya</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Submission?.Conference?.Name</td>
+                    <td>@item.Submission?.Title</td>
+                    <td>@item.Submission?.AuthorFullName</td>
+                    <td>@item.DOI</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(item.Submission?.FilePath))
+                        {
+                            <a href="@item.Submission.FilePath" target="_blank">PDF</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,195 @@
+body {
+    background: var(--body-bg);
+    color: var(--text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+a { color: inherit; }
+
+.site-header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--surface-border);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.site-navbar {
+    min-height: 78px;
+}
+
+.site-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.site-brand-logo {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+}
+
+.site-brand-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: #7f611d;
+    background: #e4cf95;
+}
+
+.site-brand-text {
+    color: var(--title-color);
+    font-weight: 800;
+    font-size: 0.98rem;
+    line-height: 1.05;
+    text-transform: uppercase;
+}
+
+.site-menu .nav-link {
+    color: var(--header-text) !important;
+    font-size: 0.98rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.65rem 0.9rem !important;
+    transition: all 0.18s ease;
+}
+
+.site-menu .nav-link:hover,
+.site-menu .nav-link:focus,
+.site-menu .nav-link.active {
+    color: var(--header-accent) !important;
+    background: var(--header-hover-bg);
+}
+
+.login-pill {
+    background: var(--button-bg);
+    color: var(--button-text);
+    text-decoration: none;
+    padding: 0.7rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: 0 10px 18px rgba(201, 162, 75, 0.20);
+}
+
+.login-pill:hover {
+    color: var(--button-text);
+    filter: brightness(0.97);
+}
+
+.page-wrapper {
+    min-height: calc(100vh - 150px);
+}
+
+.site-footer {
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    border-top: 1px solid var(--surface-border);
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+.hero-card, .section-card, .announcement-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 22px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.home-kicker {
+    display: inline-block;
+    border-radius: 999px;
+    background: #f4ead1;
+    color: var(--title-color);
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 0.45rem 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.home-title {
+    color: var(--title-color);
+    font-weight: 800;
+    font-size: 2.5rem;
+    line-height: 1.08;
+}
+
+.home-muted {
+    color: var(--muted-color);
+}
+
+.mini-date-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.mini-date-card .label {
+    color: var(--muted-color);
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+.mini-date-card .value {
+    color: var(--title-color);
+    font-weight: 800;
+}
+
+.list-box-item {
+    border: 1px solid var(--surface-border);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    background: #fff;
+    margin-bottom: 0.75rem;
+}
+
+.list-box-date {
+    color: var(--header-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.list-box-title {
+    color: var(--text-color);
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+
+.section-heading {
+    color: var(--title-color);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.poster-frame {
+    background: linear-gradient(180deg, #fff 0%, #faf7f0 100%);
+    border: 1px solid var(--surface-border);
+    border-radius: 20px;
+    padding: 0.8rem;
+}
+
+.poster-frame img {
+    width: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+    max-height: 560px;
+}
+
+@media (max-width: 1199px) {
+    .site-menu .nav-link {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+}
+
+@media (max-width: 991px) {
+    .site-brand-text { font-size: 0.85rem; }
+    .home-title { font-size: 2rem; }
+}

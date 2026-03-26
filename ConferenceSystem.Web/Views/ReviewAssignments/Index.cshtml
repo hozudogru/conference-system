@@ -1,0 +1,30 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.ReviewAssignment>
+
+@{
+    ViewData["Title"] = "Hakem Atamaları";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">Hakem Atamaları</h1>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Bildiri</th>
+            <th>Hakem</th>
+            <th>Durum</th>
+            <th>Atama Tarihi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Submission?.Title</td>
+                <td>@item.Reviewer?.FullName</td>
+                <td>@item.Status</td>
+                <td>@item.AssignedAt.ToString("dd.MM.yyyy HH:mm")</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+@model ConferenceSystem.Web.Entities.RegistrationCategory
+@{ ViewData["Title"] = "Sil"; Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml"; }
+<h1 class="mb-4">Kaydı Sil</h1>
+<div class="alert alert-warning">Bu kayıt silinecek. Emin misiniz?</div>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <button type="submit" class="btn btn-danger">Sil</button>
+    <a class="btn btn-outline-secondary" href="javascript:history.back()">Vazgeç</a>
+</form>

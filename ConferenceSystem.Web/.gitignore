@@ -1,0 +1,9 @@
+bin/
+obj/
+*.user
+*.suo
+*.zip
+*.log
+.vs/
+publish/
+wwwroot/lib/

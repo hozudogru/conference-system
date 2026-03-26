@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Program Excel İçe Aktar";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var conference = ViewBag.Conference as ConferenceSystem.Web.Entities.Conference;
+}
+
+<h1 class="mb-4">Program Excel İçe Aktar</h1>
+
+@if (conference != null)
+{
+    <div class="mb-3">
+        <strong>Konferans:</strong> @conference.Name
+    </div>
+}
+
+<div class="alert alert-info">
+    Excel kolon sırası:
+    <br />
+    <strong>SessionTitle | Room | ChairName | StartTime | EndTime | SubmissionNumber | Order | PresentationMinutes</strong>
+</div>
+
+<form asp-action="Import" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="conferenceId" value="@ViewBag.ConferenceId" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label class="form-label">Excel Dosyası</label>
+        <input type="file" name="excelFile" class="form-control" accept=".xlsx" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">İçe Aktar</button>
+    <a href="/Admin/Schedule?conferenceId=@ViewBag.ConferenceId" class="btn btn-secondary">Geri</a>
+</form>

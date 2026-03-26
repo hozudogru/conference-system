@@ -1,0 +1,42 @@
+﻿@model ConferenceSystem.Web.Entities.Announcement
+
+@{
+    ViewData["Title"] = "Yeni Duyuru";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Yeni Duyuru</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Başlık</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Summary" class="form-label">Özet</label>
+        <textarea asp-for="Summary" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label">İçerik</label>
+        <textarea asp-for="Content" class="form-control" rows="8"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PublishDate" class="form-label">Yayın Tarihi</label>
+        <input asp-for="PublishDate" type="datetime-local" class="form-control"
+               value="@Model.PublishDate.ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsPublished" class="form-check-input" />
+        <label asp-for="IsPublished" class="form-check-label">Yayında mı?</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a href="/Admin/Announcements" class="btn btn-secondary">Geri</a>
+</form>

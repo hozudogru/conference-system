@@ -1,0 +1,378 @@
+﻿@model ConferenceSystem.Web.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .dashboard-stat-card {
+        border: none;
+        border-radius: 18px;
+        color: #fff;
+        padding: 1.2rem 1.25rem;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        height: 100%;
+    }
+
+        .dashboard-stat-card .stat-icon {
+            font-size: 1.4rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-stat-card .stat-title {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-top: 0.5rem;
+        }
+
+        .dashboard-stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-top: 0.35rem;
+        }
+
+    .dashboard-mini-card {
+        background: #fff;
+        border: 1px solid #eef2f7;
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+        height: 100%;
+    }
+
+        .dashboard-mini-card .mini-title {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.4rem;
+        }
+
+        .dashboard-mini-card .mini-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+    .dashboard-panel {
+        background: #fff;
+        border: 1px solid #eef2f7;
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .dashboard-panel-header {
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid #eef2f7;
+        font-weight: 700;
+        color: #0f172a;
+        background: #fbfcfe;
+    }
+
+    .dashboard-panel-body {
+        padding: 1rem 1.2rem;
+    }
+
+    .dashboard-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .dashboard-list li {
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .dashboard-list li:last-child {
+                border-bottom: none;
+            }
+
+    .dashboard-list-title {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .dashboard-list-meta {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 0.15rem;
+    }
+
+    .quick-links a {
+        display: inline-block;
+        margin: 0.25rem 0.35rem 0.25rem 0;
+        text-decoration: none;
+    }
+
+    .chart-box {
+        background: #fff;
+        border: 1px solid #eef2f7;
+        border-radius: 18px;
+        padding: 1rem 1.2rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+</style>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="stat-icon"><i class="bi bi-file-earmark-text"></i></div>
+            </div>
+            <div class="stat-title">Toplam Bildiri</div>
+            <div class="stat-value">@Model.TotalSubmissions</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #059669, #047857);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+            </div>
+            <div class="stat-title">Toplam Hakem</div>
+            <div class="stat-value">@Model.TotalReviewers</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #d97706, #b45309);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="stat-icon"><i class="bi bi-diagram-3"></i></div>
+            </div>
+            <div class="stat-title">Hakem Ataması</div>
+            <div class="stat-value">@Model.TotalAssignments</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #374151, #111827);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="stat-icon"><i class="bi bi-clipboard-check"></i></div>
+            </div>
+            <div class="stat-title">Değerlendirme</div>
+            <div class="stat-value">@Model.TotalReviews</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-2">
+        <div class="dashboard-mini-card">
+            <div class="mini-title">Pending</div>
+            <div class="mini-value">@Model.PendingSubmissions</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-2">
+        <div class="dashboard-mini-card">
+            <div class="mini-title">Under Review</div>
+            <div class="mini-value">@Model.UnderReviewSubmissions</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-2">
+        <div class="dashboard-mini-card">
+            <div class="mini-title">Reviewed</div>
+            <div class="mini-value">@Model.ReviewedSubmissions</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-2">
+        <div class="dashboard-mini-card">
+            <div class="mini-title">Accepted</div>
+            <div class="mini-value">@Model.AcceptedSubmissions</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-2">
+        <div class="dashboard-mini-card">
+            <div class="mini-title">Revision</div>
+            <div class="mini-value">@Model.RevisionRequiredSubmissions</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-2">
+        <div class="dashboard-mini-card">
+            <div class="mini-title">Rejected</div>
+            <div class="mini-value">@Model.RejectedSubmissions</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-8">
+        <div class="chart-box">
+            <div class="fw-bold mb-3">Bildiri Durum Dağılımı</div>
+            <canvas id="submissionStatusChart" height="110"></canvas>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="dashboard-panel h-100">
+            <div class="dashboard-panel-header">Hızlı Durum Filtreleri</div>
+            <div class="dashboard-panel-body quick-links">
+                <a href="/Admin/Submissions?status=Pending" class="btn btn-outline-secondary btn-sm">Pending</a>
+                <a href="/Admin/Submissions?status=Under Review" class="btn btn-outline-info btn-sm">Under Review</a>
+                <a href="/Admin/Submissions?status=Reviewed" class="btn btn-outline-primary btn-sm">Reviewed</a>
+                <a href="/Admin/Submissions?status=Accepted" class="btn btn-outline-success btn-sm">Accepted</a>
+                <a href="/Admin/Submissions?status=Revision Required" class="btn btn-outline-warning btn-sm">Revision</a>
+                <a href="/Admin/Submissions?status=Rejected" class="btn btn-outline-danger btn-sm">Rejected</a>
+                <a href="/Admin/Submissions?status=Revised Submitted" class="btn btn-outline-dark btn-sm">Revised Submitted</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="dashboard-panel h-100">
+            <div class="dashboard-panel-header">Sistem Özeti</div>
+            <div class="dashboard-panel-body">
+                <p><strong>Konferans Sayısı:</strong> @Model.TotalConferences</p>
+                <p><strong>Duyuru Sayısı:</strong> @Model.TotalAnnouncements</p>
+                <p><strong>Revizyon Yüklenen:</strong> @Model.RevisedSubmittedSubmissions</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="dashboard-panel h-100">
+            <div class="dashboard-panel-header">Hızlı Erişim</div>
+            <div class="dashboard-panel-body quick-links">
+                <a href="/Admin/Submissions" class="btn btn-outline-primary btn-sm">Bildiriler</a>
+                <a href="/Admin/Reviewers" class="btn btn-outline-primary btn-sm">Hakemler</a>
+                <a href="/Admin/ReviewAssignments" class="btn btn-outline-primary btn-sm">Hakem Atamaları</a>
+                <a href="/Admin/Reviews" class="btn btn-outline-primary btn-sm">Değerlendirmeler</a>
+                <a href="/Admin/EditorialDecisions" class="btn btn-outline-primary btn-sm">Nihai Kararlar</a>
+                <a href="/Admin/Schedule?conferenceId=3" class="btn btn-outline-primary btn-sm">Program</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="dashboard-panel h-100">
+            <div class="dashboard-panel-header">Son 5 Bildiri</div>
+            <div class="dashboard-panel-body">
+                @if (Model.LatestSubmissions.Any())
+                {
+                    <ul class="dashboard-list">
+                        @foreach (var item in Model.LatestSubmissions)
+                        {
+                            <li>
+                                <div class="dashboard-list-title">@item.SubmissionNumber - @item.Title</div>
+                                <div class="dashboard-list-meta">@item.AuthorFullName | @item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="mb-0">Kayıt yok.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="dashboard-panel h-100">
+            <div class="dashboard-panel-header">Son 5 Nihai Karar</div>
+            <div class="dashboard-panel-body">
+                @if (Model.LatestDecisions.Any())
+                {
+                    <ul class="dashboard-list">
+                        @foreach (var item in Model.LatestDecisions)
+                        {
+                            <li>
+                                <div class="dashboard-list-title">@item.DecisionType</div>
+                                <div class="dashboard-list-meta">@item.Submission?.Title</div>
+                                <div class="dashboard-list-meta">@item.DecidedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="mb-0">Karar kaydı yok.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="dashboard-panel h-100">
+            <div class="dashboard-panel-header">Son 5 Hakem Ataması</div>
+            <div class="dashboard-panel-body">
+                @if (Model.LatestAssignments.Any())
+                {
+                    <ul class="dashboard-list">
+                        @foreach (var item in Model.LatestAssignments)
+                        {
+                            <li>
+                                <div class="dashboard-list-title">@item.Submission?.Title</div>
+                                <div class="dashboard-list-meta">@item.Reviewer?.FullName</div>
+                                <div class="dashboard-list-meta">@item.AssignedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="mb-0">Atama kaydı yok.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const statusLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusLabels));
+        const statusCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusCounts));
+
+        const ctx = document.getElementById('submissionStatusChart').getContext('2d');
+
+        new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels: statusLabels,
+        datasets: [{
+        label: 'Bildiri Sayısı',
+        data: statusCounts,
+        borderWidth: 1,
+        borderRadius: 8
+        }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+        legend: {
+        display: true
+        }
+        },
+        scales: {
+        y: {
+        beginAtZero: true,
+        ticks: {
+        precision: 0
+        },
+        grid: {
+        color: '#eef2f7'
+        }
+        },
+        x: {
+        grid: {
+        display: false
+        }
+        }
+        }
+        }
+        });
+    </script>
+}

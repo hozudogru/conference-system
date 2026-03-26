@@ -1,0 +1,29 @@
+﻿@model ConferenceSystem.Web.Entities.Submission
+
+@{
+    ViewData["Title"] = "Bildiri Durum Güncelle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">Bildiri Durum Güncelle</h1>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Başlık:</strong> @Model.Title</p>
+        <p><strong>Yazar:</strong> @Model.AuthorFullName</p>
+        <p><strong>Mevcut Durum:</strong> @Model.Status</p>
+
+        <form asp-action="EditStatus" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label">Yeni Durum</label>
+                <select asp-for="Status" asp-items="ViewBag.StatusList" class="form-select"></select>
+            </div>
+
+            <button type="submit" class="btn btn-success">Kaydet</button>
+            <a href="/Admin/Submissions/Detail/@Model.Id" class="btn btn-secondary">Geri</a>
+        </form>
+    </div>
+</div>

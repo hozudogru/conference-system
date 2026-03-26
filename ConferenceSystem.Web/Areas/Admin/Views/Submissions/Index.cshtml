@@ -1,0 +1,75 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.Submission>
+
+@{
+    ViewData["Title"] = "Bildiriler";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "";
+}
+
+<h1 class="mb-4">Bildiriler</h1>
+
+<div class="mb-3">
+    <a href="/Admin/Submissions" class="btn @(string.IsNullOrWhiteSpace(currentStatus) ? "btn-dark" : "btn-outline-dark")">Tümü</a>
+    <a href="/Admin/Submissions?status=Pending" class="btn @(currentStatus == "Pending" ? "btn-secondary" : "btn-outline-secondary")">Pending</a>
+    <a href="/Admin/Submissions?status=Under Review" class="btn @(currentStatus == "Under Review" ? "btn-info" : "btn-outline-info")">Under Review</a>
+    <a href="/Admin/Submissions?status=Reviewed" class="btn @(currentStatus == "Reviewed" ? "btn-primary" : "btn-outline-primary")">Reviewed</a>
+    <a href="/Admin/Submissions?status=Accepted" class="btn @(currentStatus == "Accepted" ? "btn-success" : "btn-outline-success")">Accepted</a>
+    <a href="/Admin/Submissions?status=Revision Required" class="btn @(currentStatus == "Revision Required" ? "btn-warning" : "btn-outline-warning")">Revision</a>
+    <a href="/Admin/Submissions?status=Rejected" class="btn @(currentStatus == "Rejected" ? "btn-danger" : "btn-outline-danger")">Rejected</a>
+    <a href="/Admin/Submissions?status=Revised Submitted" class="btn @(currentStatus == "Revised Submitted" ? "btn-dark" : "btn-outline-dark")">Revised Submitted</a>
+   
+</div>
+<div class="mb-3">
+    @if (string.IsNullOrWhiteSpace(currentStatus))
+    {
+        <a href="/Admin/Submissions/ExportExcel" class="btn btn-success">Excel'e Aktar</a>
+    }
+    else
+    {
+        <a href="/Admin/Submissions/ExportExcel?status=@currentStatus" class="btn btn-success">
+            Bu Listeyi Excel'e Aktar
+        </a>
+    }
+</div>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Konferans</th>
+            <th>Başvuru No</th>
+            <th>Başlık</th>
+            <th>Yazar</th>
+            <th>E-posta</th>
+            <th>Durum</th>
+            <th>Tarih</th>
+            <th>Dosya</th>
+            <th style="width:160px;">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Conference?.Name</td>
+                <td>@item.SubmissionNumber</td>
+                <td>@item.Title</td>
+                <td>@item.AuthorFullName</td>
+                <td>@item.Email</td>
+                <td>@item.Status</td>
+                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                    {
+                        <a href="@item.FilePath" target="_blank">Dosya</a>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+                <td>
+                    <a href="/Admin/Submissions/Detail/@item.Id" class="btn btn-sm btn-primary">Detay</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,20 @@
+﻿@model ConferenceSystem.Web.Entities.ContentPage
+
+@{
+    ViewData["Title"] = "Sayfa Sil";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Sayfa Sil</h1>
+
+<div class="alert alert-warning">
+    <strong>@Model.Title</strong> başlıklı sayfayı silmek istediğine emin misin?
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <button type="submit" class="btn btn-danger">Sil</button>
+    <a href="/Admin/Pages" class="btn btn-secondary">Vazgeç</a>
+</form>

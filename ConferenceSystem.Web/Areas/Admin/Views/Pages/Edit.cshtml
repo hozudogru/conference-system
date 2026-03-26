@@ -1,0 +1,54 @@
+﻿@model ConferenceSystem.Web.Entities.ContentPage
+
+@{
+    ViewData["Title"] = "Sayfa Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Sayfa Düzenle</h1>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Başlık</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Slug" class="form-label">Slug</label>
+        <input asp-for="Slug" class="form-control" />
+        <span asp-validation-for="Slug" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label">İçerik</label>
+        <textarea asp-for="Content" class="form-control" rows="8"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+        <input asp-for="MetaTitle" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SortOrder" class="form-label">Sıra</label>
+        <input asp-for="SortOrder" class="form-control" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsPublished" class="form-check-input" />
+        <label asp-for="IsPublished" class="form-check-label">Yayında mı?</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Güncelle</button>
+    <a href="/Admin/Pages" class="btn btn-secondary">Geri</a>
+</form>
+

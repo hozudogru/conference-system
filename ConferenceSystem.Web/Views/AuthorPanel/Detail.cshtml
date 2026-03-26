@@ -1,0 +1,79 @@
+﻿@model ConferenceSystem.Web.Entities.Submission
+@{
+    ViewData["Title"] = "Başvuru Detayı";
+    var latestDecision = ViewBag.LatestDecision as ConferenceSystem.Web.Entities.EditorialDecision;
+    var revisions = ViewBag.Revisions as List<ConferenceSystem.Web.Entities.RevisionFile>;
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Başvuru Detayı</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Başvuru No:</strong> @Model.SubmissionNumber</p>
+            <p><strong>Bildiri No:</strong> @Model.Id</p>
+            <p><strong>Konferans:</strong> @Model.Conference?.Name</p>
+            <p><strong>Başlık:</strong> @Model.Title</p>
+            <p><strong>Yazar:</strong> @Model.AuthorFullName</p>
+            <p><strong>E-posta:</strong> @Model.Email</p>
+            <p><strong>Kurum:</strong> @Model.Institution</p>
+            <p><strong>Durum:</strong> @Model.Status</p>
+            <p><strong>Gönderim:</strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+        </div>
+    </div>
+
+    @if (latestDecision != null)
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Nihai / Son Karar</h4>
+                <p><strong>Karar:</strong> @latestDecision.DecisionType</p>
+                <p><strong>Tarih:</strong> @latestDecision.DecidedAt.ToString("dd.MM.yyyy HH:mm")</p>
+
+                @if (!string.IsNullOrWhiteSpace(latestDecision.DecisionNote))
+                {
+                    <div class="border rounded p-3 bg-light">
+                        @latestDecision.DecisionNote
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4>Revizyon Dosyaları</h4>
+
+            @if (revisions != null && revisions.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var item in revisions)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@item.UploadedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                            <a href="@item.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">Dosya</a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="mb-0">Henüz revizyon dosyası yüklenmedi.</p>
+            }
+        </div>
+    </div>
+
+    @if (Model.Status == "Revision Required")
+    {
+        <a href="/AuthorPanel/UploadRevision?submissionId=@Model.Id&email=@Model.Email" class="btn btn-warning">
+            Revizyon Yükle
+        </a>
+    }
+
+    <a href="/AuthorPanel/Login" class="btn btn-secondary">Çıkış</a>
+</div>

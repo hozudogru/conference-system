@@ -1,0 +1,83 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.Session>
+
+@{
+    ViewData["Title"] = "Konferans Programı";
+    var conference = ViewBag.Conference as ConferenceSystem.Web.Entities.Conference;
+}
+
+<div class="container py-4">
+    @if (conference != null)
+    {
+        <div class="text-center mb-4">
+            @if (!string.IsNullOrWhiteSpace(conference.LogoPath))
+            {
+                <img src="@conference.LogoPath" alt="Logo" style="max-height:100px;" class="mb-3" />
+            }
+
+            <h1>@conference.Name</h1>
+
+            <div class="text-muted">
+                @conference.StartDate.ToString("dd.MM.yyyy") - @conference.EndDate.ToString("dd.MM.yyyy")
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(conference.PresidentName))
+            {
+                <div class="mt-2"><strong>Konferans Başkanı:</strong> @conference.PresidentName</div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(conference.OrganizingCommitteeInfo))
+            {
+                <div class="mt-2"><strong>Düzenleme Kurulu:</strong> @conference.OrganizingCommitteeInfo</div>
+            }
+        </div>
+    }
+
+    <div class="mb-3">
+        <a href="/Program/Booklet?conferenceId=@ViewBag.ConferenceId" class="btn btn-dark">
+            Program Booklet PDF
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            Bu konferans için henüz program oluşturulmamış.
+        </div>
+    }
+    else
+    {
+        @foreach (var session in Model)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <strong>@session.Title</strong> |
+                    @session.StartTime.ToString("dd.MM.yyyy HH:mm") - @session.EndTime.ToString("HH:mm") |
+                    @session.Room
+                    @if (!string.IsNullOrWhiteSpace(session.ChairName))
+                    {
+                        <div class="small mt-1">Oturum Başkanı: @session.ChairName</div>
+                    }
+                </div>
+
+                <div class="card-body">
+                    <ul class="mb-0">
+                        @foreach (var item in session.Items.OrderBy(x => x.Order))
+                        {
+                            <li class="mb-3">
+                                <strong>@item.Submission?.Title</strong><br />
+                                <span>@item.Submission?.AuthorFullName</span><br />
+                                <small class="text-muted">
+                                    Süre: @item.PresentationMinutes dk
+                                    @if (!string.IsNullOrWhiteSpace(item.Submission?.SubmissionNumber))
+                                    {
+                                        <text> | No: @item.Submission.SubmissionNumber</text>
+                                    }
+                                </small>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    }
+</div>

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.AuditLog>
+
+@{
+    ViewData["Title"] = "Audit Log";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">Audit Log</h1>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Tarih</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>EntityId</th>
+            <th>PerformedBy</th>
+            <th>Description</th>
+            <th>IP</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                <td>@item.ActionType</td>
+                <td>@item.EntityType</td>
+                <td>@item.EntityId</td>
+                <td>@item.PerformedBy</td>
+                <td>@item.Description</td>
+                <td>@item.IpAddress</td>
+            </tr>
+        }
+    </tbody>
+</table>

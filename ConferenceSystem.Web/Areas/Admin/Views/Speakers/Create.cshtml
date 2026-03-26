@@ -1,0 +1,32 @@
+@model ConferenceSystem.Web.Entities.Speaker
+@{
+    ViewData["Title"] = "Konuşmacı Ekle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var conferences = ViewBag.Conferences as IEnumerable<ConferenceSystem.Web.Entities.Conference>;
+}
+<h1 class="mb-4">@ViewData["Title"]</h1>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <div class="mb-3">
+        <label asp-for="ConferenceId" class="form-label">Konferans</label>
+        <select asp-for="ConferenceId" class="form-select">
+            @if (conferences != null)
+            {
+                foreach (var c in conferences)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            }
+        </select>
+    </div>
+<div class="mb-3"><label asp-for="FullName" class="form-label">Ad Soyad</label><input asp-for="FullName" class="form-control" /></div>
+<div class="mb-3"><label asp-for="Title" class="form-label">Unvan</label><input asp-for="Title" class="form-control" /></div>
+<div class="mb-3"><label asp-for="Institution" class="form-label">Kurum</label><input asp-for="Institution" class="form-control" /></div>
+<div class="mb-3"><label asp-for="ImageUrl" class="form-label">Görsel URL</label><input asp-for="ImageUrl" class="form-control" /></div>
+<div class="mb-3"><label asp-for="Bio" class="form-label">Biyografi</label><textarea asp-for="Bio" class="form-control" rows="5"></textarea></div>
+<div class="mb-3"><label asp-for="SortOrder" class="form-label">Sıra</label><input asp-for="SortOrder" class="form-control" /></div>
+<div class="form-check mb-4"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Aktif</label></div>
+<button type="submit" class="btn btn-primary">Kaydet</button>
+<a class="btn btn-outline-secondary" href="javascript:history.back()">Vazgeç</a>
+</form>

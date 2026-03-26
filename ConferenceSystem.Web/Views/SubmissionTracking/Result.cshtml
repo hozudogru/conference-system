@@ -1,0 +1,50 @@
+﻿@model ConferenceSystem.Web.ViewModels.SubmissionTrackingResultViewModel
+
+@{
+    ViewData["Title"] = "Başvuru Sonucu";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Başvuru Sonucu</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Bildiri No:</strong> @Model.SubmissionId</p>
+            <p><strong>Konferans:</strong> @Model.ConferenceName</p>
+            <p><strong>Başlık:</strong> @Model.Title</p>
+            <p><strong>Yazar:</strong> @Model.AuthorFullName</p>
+            <p><strong>E-posta:</strong> @Model.Email</p>
+            <p><strong>Kurum:</strong> @Model.Institution</p>
+            <p><strong>Durum:</strong> @Model.Status</p>
+            <p><strong>Gönderim Tarihi:</strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+        </div>
+    </div>
+
+    @if (Model.HasDecision)
+    {
+        <div class="card mb-4 border-success">
+            <div class="card-body">
+                <h4 class="mb-3">Nihai Karar</h4>
+                <p><strong>Karar:</strong> @Model.DecisionType</p>
+
+                @if (!string.IsNullOrWhiteSpace(Model.DecisionNote))
+                {
+                    <div class="mt-3">
+                        <strong>Karar Notu</strong>
+                        <div class="border rounded p-3 mt-2 bg-light">
+                            @Model.DecisionNote
+                        </div>
+                    </div>
+                }
+
+                <div class="mt-3">
+                    <a href="/PublicLetters/Download?submissionId=@Model.SubmissionId" class="btn btn-dark">
+                        Karar Mektubu PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <a href="/SubmissionTracking" class="btn btn-secondary">Yeni Sorgu</a>
+</div>

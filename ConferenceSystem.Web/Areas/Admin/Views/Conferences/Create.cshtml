@@ -1,0 +1,71 @@
+﻿@model ConferenceSystem.Web.Entities.Conference
+
+@{
+    ViewData["Title"] = "Yeni Konferans";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Yeni Konferans</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Ad</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ShortName" class="form-label">Kısa Ad</label>
+        <input asp-for="ShortName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Location" class="form-label">Yer</label>
+        <input asp-for="Location" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="StartDate" class="form-label">Başlangıç Tarihi</label>
+        <input asp-for="StartDate" type="date" class="form-control"
+               value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EndDate" class="form-label">Bitiş Tarihi</label>
+        <input asp-for="EndDate" type="date" class="form-control"
+               value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Açıklama</label>
+        <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WebsiteUrl" class="form-label">Website</label>
+        <input asp-for="WebsiteUrl" class="form-control" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Aktif mi?</label>
+    </div>
+    <div class="mb-3">
+        <label asp-for="LogoPath" class="form-label">Logo Yolu</label>
+        <input asp-for="LogoPath" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PresidentName" class="form-label">Konferans Başkanı</label>
+        <input asp-for="PresidentName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="OrganizingCommitteeInfo" class="form-label">Düzenleme Kurulu Bilgisi</label>
+        <textarea asp-for="OrganizingCommitteeInfo" class="form-control" rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a href="/Admin/Conferences" class="btn btn-secondary">Geri</a>
+</form>

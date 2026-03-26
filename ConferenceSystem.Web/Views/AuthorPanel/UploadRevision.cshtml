@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Revizyon Yükle";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Revizyon Yükle</h1>
+
+    <div class="mb-3">
+        <strong>Bildiri:</strong> @ViewBag.Title
+    </div>
+
+    <form asp-action="UploadRevision" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="submissionId" value="@ViewBag.SubmissionId" />
+        <input type="hidden" name="email" value="@ViewBag.Email" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label class="form-label">Revizyon Dosyası</label>
+            <input type="file" name="revisionFile" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Yükle</button>
+        <a href="/AuthorPanel/Detail?submissionId=@ViewBag.SubmissionId&email=@ViewBag.Email" class="btn btn-secondary">Geri</a>
+    </form>
+</div>

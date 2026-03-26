@@ -1,0 +1,48 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.CommitteeMember>
+
+@{
+    ViewData["Title"] = "Kurullar";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Kurullar</h1>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Kurul bilgisi bulunamadı.
+        </div>
+    }
+    else
+    {
+        var groups = Model.GroupBy(x => x.CommitteeType);
+
+        foreach (var group in groups)
+        {
+            <h2 class="mt-4 mb-3">@group.Key</h2>
+
+            <div class="row">
+                @foreach (var member in group)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@member.FullName</h5>
+
+                                @if (!string.IsNullOrWhiteSpace(member.Title))
+                                {
+                                    <p class="mb-1">@member.Title</p>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(member.Institution))
+                                {
+                                    <p class="text-muted">@member.Institution</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>

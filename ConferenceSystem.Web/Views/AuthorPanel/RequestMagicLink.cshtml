@@ -1,0 +1,38 @@
+﻿@model ConferenceSystem.Web.ViewModels.AuthorMagicLinkRequestViewModel
+
+@{
+    ViewData["Title"] = "Magic Link İste";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Magic Link İste</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="RequestMagicLink" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="SubmissionNumber" class="form-label">Başvuru Numarası</label>
+                    <input asp-for="SubmissionNumber" class="form-control" />
+                    <span asp-validation-for="SubmissionNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">E-posta</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Giriş Linki Gönder</button>
+            </form>
+        </div>
+    </div>
+</div>

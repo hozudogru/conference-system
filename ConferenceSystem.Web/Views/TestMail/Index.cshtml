@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Mail Test";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Mail Test</h1>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label class="form-label">Gönderilecek E-posta</label>
+            <input type="email" name="toEmail" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Test Maili Gönder</button>
+    </form>
+
+    @if (ViewBag.Result != null)
+    {
+        <div class="mt-4">
+            <h4>Sonuç</h4>
+            <pre style="white-space: pre-wrap;">@ViewBag.Result</pre>
+        </div>
+    }
+</div>

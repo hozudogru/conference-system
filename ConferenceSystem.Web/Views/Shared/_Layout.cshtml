@@ -1,0 +1,144 @@
+@using ConferenceSystem.Web.Data
+@inject AppDbContext DbContext
+
+@{
+    var path = Context.Request.Path.ToString().ToLower();
+    var portalRole = Context.Session.GetString("PortalRole");
+
+    string ActiveClass(params string[] urls)
+    {
+        foreach (var url in urls)
+        {
+            if (!string.IsNullOrWhiteSpace(url) && path.StartsWith(url.ToLower()))
+                return "active";
+        }
+        return "";
+    }
+
+    var currentConference = DbContext.Conferences
+        .OrderByDescending(x => x.IsActive)
+        .ThenByDescending(x => x.StartDate)
+        .FirstOrDefault();
+
+    var publicProgramUrl = currentConference != null
+        ? $"/Program?conferenceId={currentConference.Id}"
+        : "/";
+
+    var publicMenuItems = DbContext.MenuItems
+        .Where(x => x.IsActive && x.MenuLocation == "Public")
+        .OrderBy(x => x.SortOrder)
+        .ToList();
+
+    var themeMap = DbContext.SiteSettings
+        .Where(x => x.Key.StartsWith("Theme."))
+        .ToDictionary(x => x.Key, x => x.Value);
+
+    string Theme(string key, string fallback) => themeMap.TryGetValue(key, out var v) && !string.IsNullOrWhiteSpace(v) ? v : fallback;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Conference System</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/home-dynamic.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --theme-primary: @Theme("Theme.Primary", "#B08A4A");
+            --theme-secondary: @Theme("Theme.Secondary", "#F5E6C8");
+            --theme-accent: @Theme("Theme.Accent", "#8D6A2B");
+            --theme-bg: @Theme("Theme.Background", "#F7F3EC");
+            --theme-surface: @Theme("Theme.Surface", "#FFFFFF");
+            --theme-border: @Theme("Theme.Border", "#E8D9BC");
+            --theme-heading: @Theme("Theme.Heading", "#6F4E1F");
+            --theme-text: @Theme("Theme.Text", "#40352A");
+            --theme-muted: @Theme("Theme.Muted", "#8C7A64");
+            --theme-header-bg: @Theme("Theme.HeaderBg", "#F3EEDF");
+            --theme-header-text: @Theme("Theme.HeaderText", "#6F4E1F");
+            --theme-footer-bg: @Theme("Theme.FooterBg", "#F3EEDF");
+            --theme-footer-text: @Theme("Theme.FooterText", "#6F4E1F");
+            --theme-button-bg: @Theme("Theme.ButtonBg", "#B08A4A");
+            --theme-button-text: @Theme("Theme.ButtonText", "#FFFFFF");
+            --theme-badge-bg: @Theme("Theme.BadgeBg", "#F8EACD");
+            --theme-badge-text: @Theme("Theme.BadgeText", "#8D6A2B");
+        }
+
+        .page-wrapper { min-height: calc(100vh - 150px); }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light main-navbar">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    @(currentConference?.ShortName ?? "Conference System")
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link @ActiveClass("/")" href="/">Ana Sayfa</a></li>
+                        @foreach (var item in publicMenuItems)
+                        {
+                            if (item.Url.Equals("/", StringComparison.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link @ActiveClass(item.Url)" href="@item.Url" target="@(item.OpenInNewTab ? "_blank" : "_self")">
+                                    @item.Title
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle @ActiveClass("/submission", "/submissiontracking", "/access/login")" href="#" id="katilimDropdown" role="button" data-bs-toggle="dropdown">
+                                Katılım
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item @ActiveClass("/submission/create")" href="/Submission/Create">Bildiri Gönder</a></li>
+                                <li><a class="dropdown-item @ActiveClass("/submissiontracking")" href="/SubmissionTracking">Başvuru Takibi</a></li>
+                                <li><a class="dropdown-item @ActiveClass("/access/login")" href="/Access/Login">Panel Girişi</a></li>
+                                <li><a class="dropdown-item @ActiveClass("/program")" href="@publicProgramUrl">Program</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex gap-2 align-items-center">
+                        @if (!string.IsNullOrWhiteSpace(portalRole))
+                        {
+                            <form asp-controller="Access" asp-action="Logout" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-secondary">Panelden Çık</button>
+                            </form>
+                        }
+                        <a class="admin-btn" href="/AdminAuth/Login">Editör Girişi</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container py-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">© @DateTime.Now.Year - @(currentConference?.Name ?? "Conference System")</div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

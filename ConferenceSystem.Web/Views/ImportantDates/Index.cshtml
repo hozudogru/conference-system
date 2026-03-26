@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ConferenceSystem.Web.Entities.ImportantDate>
+
+@{
+    ViewData["Title"] = "Önemli Tarihler";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Önemli Tarihler</h1>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Henüz önemli tarih bulunmuyor.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-primary">
+                                @item.DateValue.ToString("dd.MM.yyyy")
+                            </h6>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p class="card-text">@item.Description</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
