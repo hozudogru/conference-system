@@ -27,17 +27,7 @@ jobs:
       - name: Publish
         run: dotnet publish ConferenceSystem.Web/ConferenceSystem.Web.csproj -c Release -o ./publish
 
-      - name: Sunucuda geçici deploy klasörü oluştur
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          script: |
-            mkdir -p /var/www/myapp_deploy
-
-      - name: Publish dosyalarını sunucuya kopyala
+      - name: Sunucuya kopyala
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
@@ -58,6 +48,7 @@ jobs:
             mkdir -p /var/www/myapp
             rsync -av --delete \
               --exclude 'appsettings.json' \
+              --exclude 'appsettings.Development.json' \
               --exclude 'wwwroot/uploads' \
               /var/www/myapp_deploy/publish/ /var/www/myapp/
             systemctl restart myapp.service
