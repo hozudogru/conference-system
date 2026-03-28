@@ -1,0 +1,263 @@
+{
+  "CurrentTemplateImagePath": "/uploads/letters/decision-template.jpeg",
+  "CurrentSignatureImagePath": "/uploads/letters/decision-signature.png",
+  "ChairmanName": "Ha\u015Fim \u00D6z\u00FCdo\u011Fru",
+  "ChairmanTitle": "Chair",
+  "PageWidthPx": 794,
+  "PageHeightPx": 1123,
+  "Fields": [
+    {
+      "Key": "ConferenceName",
+      "Label": "{ConferenceName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "DecisionTitle",
+      "Label": "{DecisionTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "SubmissionNo",
+      "Label": "{SubmissionNo}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "AuthorName",
+      "Label": "{AuthorName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "PaperTitle",
+      "Label": "{PaperTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "Date",
+      "Label": "{Date}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "DecisionNote",
+      "Label": "{DecisionNote}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "Signature",
+      "Label": "{Signature}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "ChairmanName",
+      "Label": "{ChairmanName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "ConferenceName",
+      "Label": "{ConferenceName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "DecisionTitle",
+      "Label": "{DecisionTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "AuthorName",
+      "Label": "{AuthorName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "ChairmanName",
+      "Label": "{ChairmanName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "ChairmanTitle",
+      "Label": "{ChairmanTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "Signature",
+      "Label": "{Signature}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "ChairmanName",
+      "Label": "{ChairmanName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "Signature",
+      "Label": "{Signature}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "ChairmanTitle",
+      "Label": "{ChairmanTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "PaperTitle",
+      "Label": "{PaperTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "DecisionNote",
+      "Label": "{DecisionNote}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    },
+    {
+      "Key": "ConferenceName",
+      "Label": "{ConferenceName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "PaperTitle",
+      "Label": "{PaperTitle}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": true,
+      "Visible": true
+    },
+    {
+      "Key": "AuthorName",
+      "Label": "{AuthorName}",
+      "X": 0,
+      "Y": 0,
+      "Width": 160,
+      "Height": 28,
+      "FontSize": 11,
+      "Bold": false,
+      "Visible": true
+    }
+  ]
+}

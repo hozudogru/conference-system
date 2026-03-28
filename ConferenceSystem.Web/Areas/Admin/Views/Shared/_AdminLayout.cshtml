@@ -356,14 +356,14 @@
             </div>
 
             <div class="sidebar-section">
-                <a class="sidebar-parent @IsActive("/admin/bulkannouncements")" data-bs-toggle="collapse" href="#menuCommunication">
+                <a class="sidebar-parent @IsActive("/admin/bulkannouncements", "/admin/systemsettings", "/admin/decisionlettertemplates")" data-bs-toggle="collapse" href="#menuCommunication">
                     <span class="sidebar-parent-left">
                         <i class="bi bi-envelope-paper icon"></i>
                         <span>İletişim</span>
                     </span>
                     <i class="bi bi-chevron-down chevron"></i>
                 </a>
-                    <div class="collapse @IsOpen("/admin/bulkannouncements", "/admin/systemsettings")" id="menuCommunication">
+                    <div class="collapse @IsOpen("/admin/bulkannouncements", "/admin/systemsettings", "/admin/decisionlettertemplates")" id="menuCommunication">
                         <div class="sidebar-children">
                             <a class="sidebar-child @IsActive("/admin/bulkannouncements")" href="/Admin/BulkAnnouncements">
                                 Toplu Duyuru
@@ -371,6 +371,10 @@
 
                             <a class="sidebar-child @IsActive("/admin/systemsettings/smtp")" href="/Admin/SystemSettings/Smtp">
                                 SMTP Ayarları
+                            </a>
+
+                            <a class="sidebar-child @IsActive("/admin/decisionlettertemplates")" href="/Admin/DecisionLetterTemplates/Edit">
+                                Karar Mektubu Şablonu
                             </a>
                         </div>
                     </div>
@@ -415,7 +419,7 @@
                         <i class="bi bi-house-door me-1"></i> Siteye Dön
                     </a>
 
-                    <form asp-controller="AdminAuth" asp-action="Logout" method="post" class="m-0">
+                    <form asp-area="" asp-controller="AdminAuth" asp-action="Logout" method="post" class="m-0">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-outline-danger btn-sm">
                             <i class="bi bi-box-arrow-right me-1"></i> Çıkış

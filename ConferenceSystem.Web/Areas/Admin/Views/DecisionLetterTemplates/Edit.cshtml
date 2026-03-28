@@ -1,0 +1,468 @@
+@model ConferenceSystem.Web.ViewModels.DecisionLetterTemplateViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Karar Mektubu Şablonu";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var initialFieldsJson = !string.IsNullOrWhiteSpace(Model.FieldsJson)
+        ? Model.FieldsJson
+        : JsonSerializer.Serialize(Model.Fields);
+}
+
+<style>
+    .designer-shell { display: grid; grid-template-columns: 380px minmax(820px, 1fr); gap: 24px; align-items: start; }
+    .designer-sidebar .card { position: sticky; top: 16px; }
+    .template-page-wrap { overflow: auto; padding: 8px; background: #f5f6f8; border-radius: 16px; }
+    .template-page {
+        position: relative;
+        width: 794px;
+        height: 1123px;
+        background: #fff;
+        border: 1px solid #d7dbe2;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(16,24,40,.08);
+    }
+    .template-bg {
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+    }
+    .field-box {
+        position: absolute;
+        min-width: 60px;
+        min-height: 20px;
+        padding: 4px 8px;
+        border: 1px dashed #2563eb;
+        background: rgba(255,255,255,.82);
+        color: #0f172a;
+        border-radius: 8px;
+        cursor: move;
+        user-select: none;
+        box-sizing: border-box;
+        overflow: hidden;
+        white-space: normal;
+        line-height: 1.25;
+    }
+    .field-box.active { border-style: solid; box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+    .field-box.signature { border-color: #7c3aed; background: rgba(245,243,255,.9); }
+    .placeholder-chip {
+        display:inline-flex; align-items:center; justify-content:center;
+        padding:.45rem .7rem; border-radius:999px; border:1px solid #d0d5dd;
+        margin:.2rem; font-size:.85rem; background:#fff; cursor:pointer;
+    }
+    .placeholder-chip:hover { background:#eef4ff; border-color:#84adff; }
+    .designer-note { font-size: .9rem; color: #667085; }
+    .prop-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">Karar Mektubu Şablonu</h2>
+            <div class="designer-note">A4 ön izleme üstünde yer tutucuları sürükleyip bırakarak konumlandır.</div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <form asp-area="Admin"
+          asp-controller="DecisionLetterTemplates"
+          asp-action="Edit"
+          method="post"
+          enctype="multipart/form-data"
+          id="designerForm">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="FieldsJson" type="hidden" id="FieldsJson" />
+        <input asp-for="PageWidthPx" type="hidden" id="PageWidthPx" />
+        <input asp-for="PageHeightPx" type="hidden" id="PageHeightPx" />
+
+        <div class="designer-shell">
+            <div class="designer-sidebar">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header"><strong>Şablon Dosyaları</strong></div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="TemplateImage" class="form-label"></label>
+                            <input asp-for="TemplateImage" id="TemplateImage" type="file" class="form-control" accept=".png,.jpg,.jpeg" />
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.CurrentTemplateImagePath))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Mevcut Şablon</label><br />
+                                <img src="@Model.CurrentTemplateImagePath" style="max-width:100%; border:1px solid #ddd; padding:4px; border-radius:8px;" />
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="SignatureImage" class="form-label"></label>
+                            <input asp-for="SignatureImage" type="file" class="form-control" accept=".png,.jpg,.jpeg" />
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.CurrentSignatureImagePath))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Mevcut İmza</label><br />
+                                <img src="@Model.CurrentSignatureImagePath" style="max-width:220px; border:1px solid #ddd; padding:4px; border-radius:8px;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header"><strong>Genel Bilgiler</strong></div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="ChairmanName" class="form-label"></label>
+                            <input asp-for="ChairmanName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ChairmanTitle" class="form-label"></label>
+                            <input asp-for="ChairmanTitle" class="form-control" />
+                        </div>
+                        <div class="alert alert-light border mb-0">
+                            Sayfa boyutu sabit A4 olarak ayarlanmıştır: <strong>794 x 1123 px</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header"><strong>Yer Tutucular</strong></div>
+                    <div class="card-body">
+                        <div class="designer-note mb-2">Kutular sürüklenebilir. Seçili kutunun boyut ve yazı boyutunu aşağıdan değiştirebilirsin.</div>
+                        <div>
+                            <span class="placeholder-chip" data-add-field="ConferenceName">{ConferenceName}</span>
+                            <span class="placeholder-chip" data-add-field="DecisionTitle">{DecisionTitle}</span>
+                            <span class="placeholder-chip" data-add-field="SubmissionNo">{SubmissionNo}</span>
+                            <span class="placeholder-chip" data-add-field="AuthorName">{AuthorName}</span>
+                            <span class="placeholder-chip" data-add-field="PaperTitle">{PaperTitle}</span>
+                            <span class="placeholder-chip" data-add-field="Date">{Date}</span>
+                            <span class="placeholder-chip" data-add-field="DecisionNote">{DecisionNote}</span>
+                            <span class="placeholder-chip" data-add-field="Signature">{Signature}</span>
+                            <span class="placeholder-chip" data-add-field="ChairmanName">{ChairmanName}</span>
+                            <span class="placeholder-chip" data-add-field="ChairmanTitle">{ChairmanTitle}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header"><strong>Seçili Alan Özellikleri</strong></div>
+                    <div class="card-body">
+                        <div class="prop-grid">
+                            <div>
+                                <label class="form-label">Alan</label>
+                                <input id="propKey" class="form-control" readonly />
+                            </div>
+                            <div>
+                                <label class="form-label">Etiket</label>
+                                <input id="propLabel" class="form-control" />
+                            </div>
+                            <div>
+                                <label class="form-label">X</label>
+                                <input id="propX" class="form-control" type="number" step="1" />
+                            </div>
+                            <div>
+                                <label class="form-label">Y</label>
+                                <input id="propY" class="form-control" type="number" step="1" />
+                            </div>
+                            <div>
+                                <label class="form-label">Genişlik</label>
+                                <input id="propWidth" class="form-control" type="number" step="1" />
+                            </div>
+                            <div>
+                                <label class="form-label">Yükseklik</label>
+                                <input id="propHeight" class="form-control" type="number" step="1" />
+                            </div>
+                            <div>
+                                <label class="form-label">Yazı Boyutu</label>
+                                <input id="propFontSize" class="form-control" type="number" step="1" />
+                            </div>
+                            <div class="d-flex align-items-end">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" id="propBold">
+                                    <label class="form-check-label" for="propBold">Kalın</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="propVisible" checked>
+                                    <label class="form-check-label" for="propVisible">Görünür</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <button type="button" class="btn btn-outline-danger btn-sm" id="deleteFieldBtn">Seçili Alanı Sil</button>
+                            <button type="submit" class="btn btn-primary">Kaydet</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="template-page-wrap">
+                <div class="template-page" id="templatePage">
+                    @if (!string.IsNullOrWhiteSpace(Model.CurrentTemplateImagePath))
+                    {
+                        <img id="templateBg" class="template-bg" src="@Model.CurrentTemplateImagePath" />
+                    }
+                    else
+                    {
+                        <img id="templateBg" class="template-bg" style="display:none;" />
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+(() => {
+    const templatePage = document.getElementById('templatePage');
+    const bgImage = document.getElementById('templateBg');
+    const fieldsInput = document.getElementById('FieldsJson');
+    const pageWidthInput = document.getElementById('PageWidthPx');
+    const pageHeightInput = document.getElementById('PageHeightPx');
+    const templateImageInput = document.getElementById('TemplateImage');
+    const form = document.getElementById('designerForm');
+
+    const propKey = document.getElementById('propKey');
+    const propLabel = document.getElementById('propLabel');
+    const propX = document.getElementById('propX');
+    const propY = document.getElementById('propY');
+    const propWidth = document.getElementById('propWidth');
+    const propHeight = document.getElementById('propHeight');
+    const propFontSize = document.getElementById('propFontSize');
+    const propBold = document.getElementById('propBold');
+    const propVisible = document.getElementById('propVisible');
+    const deleteFieldBtn = document.getElementById('deleteFieldBtn');
+
+    const templateWidth = 794;
+    const templateHeight = 1123;
+    templatePage.style.width = templateWidth + 'px';
+    templatePage.style.height = templateHeight + 'px';
+    pageWidthInput.value = templateWidth;
+    pageHeightInput.value = templateHeight;
+
+    let fields = [];
+    let selectedId = null;
+    let dragState = null;
+
+    const labelMap = {
+        ConferenceName: "{ConferenceName}",
+        DecisionTitle: "{DecisionTitle}",
+        SubmissionNo: "{SubmissionNo}",
+        AuthorName: "{AuthorName}",
+        PaperTitle: "{PaperTitle}",
+        Date: "{Date}",
+        DecisionNote: "{DecisionNote}",
+        Signature: "{Signature}",
+        ChairmanName: "{ChairmanName}",
+        ChairmanTitle: "{ChairmanTitle}"
+    };
+
+    function uid() {
+        return "f_" + Math.random().toString(36).slice(2, 10);
+    }
+
+    function ensureIds(data) {
+        return (data || []).map(x => ({ id: x.id || uid(), ...x }));
+    }
+
+    function parseInitial() {
+        try {
+            fields = ensureIds(JSON.parse(@Html.Raw(JsonSerializer.Serialize(initialFieldsJson))));
+        } catch {
+            fields = [];
+        }
+    }
+
+    function getFieldById(id) {
+        return fields.find(x => x.id === id);
+    }
+
+    function clampField(field) {
+        field.width = Math.max(60, Number(field.width || 160));
+        field.height = Math.max(20, Number(field.height || 28));
+        field.fontSize = Math.max(8, Number(field.fontSize || 11));
+        field.x = Math.max(0, Math.min(Number(field.x || 0), templateWidth - field.width));
+        field.y = Math.max(0, Math.min(Number(field.y || 0), templateHeight - field.height));
+    }
+
+    function serializeFields() {
+        const cleaned = fields.map(({ id, ...rest }) => rest);
+        fieldsInput.value = JSON.stringify(cleaned);
+    }
+
+    function render() {
+        templatePage.querySelectorAll('.field-box').forEach(x => x.remove());
+
+        fields.forEach(field => {
+            clampField(field);
+
+            const el = document.createElement('div');
+            el.className = 'field-box' + (field.key === 'Signature' ? ' signature' : '') + (field.id === selectedId ? ' active' : '');
+            el.dataset.id = field.id;
+            el.style.left = field.x + 'px';
+            el.style.top = field.y + 'px';
+            el.style.width = field.width + 'px';
+            el.style.height = field.height + 'px';
+            el.style.fontSize = field.fontSize + 'px';
+            el.style.fontWeight = field.bold ? '700' : '400';
+            el.style.display = field.visible === false ? 'none' : 'block';
+            el.textContent = field.label || labelMap[field.key] || field.key;
+
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('click', () => selectField(field.id));
+
+            templatePage.appendChild(el);
+        });
+
+        serializeFields();
+        syncPropertyPanel();
+    }
+
+    function selectField(id) {
+        selectedId = id;
+        render();
+    }
+
+    function syncPropertyPanel() {
+        const field = getFieldById(selectedId);
+
+        if (!field) {
+            propKey.value = "";
+            propLabel.value = "";
+            propX.value = "";
+            propY.value = "";
+            propWidth.value = "";
+            propHeight.value = "";
+            propFontSize.value = "";
+            propBold.checked = false;
+            propVisible.checked = true;
+            return;
+        }
+
+        propKey.value = field.key;
+        propLabel.value = field.label;
+        propX.value = Math.round(field.x);
+        propY.value = Math.round(field.y);
+        propWidth.value = Math.round(field.width);
+        propHeight.value = Math.round(field.height);
+        propFontSize.value = field.fontSize;
+        propBold.checked = !!field.bold;
+        propVisible.checked = field.visible !== false;
+    }
+
+    function startDrag(event) {
+        const id = event.currentTarget.dataset.id;
+        const field = getFieldById(id);
+        if (!field) return;
+
+        selectedId = id;
+        dragState = {
+            id,
+            startX: event.clientX,
+            startY: event.clientY,
+            originX: field.x,
+            originY: field.y
+        };
+
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+        render();
+        event.preventDefault();
+    }
+
+    function onDrag(event) {
+        if (!dragState) return;
+        const field = getFieldById(dragState.id);
+        if (!field) return;
+
+        field.x = dragState.originX + (event.clientX - dragState.startX);
+        field.y = dragState.originY + (event.clientY - dragState.startY);
+        clampField(field);
+        render();
+    }
+
+    function stopDrag() {
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', stopDrag);
+        dragState = null;
+    }
+
+    function updateSelectedField() {
+        const field = getFieldById(selectedId);
+        if (!field) return;
+
+        field.label = propLabel.value || labelMap[field.key] || field.key;
+        field.x = Number(propX.value || 0);
+        field.y = Number(propY.value || 0);
+        field.width = Number(propWidth.value || 160);
+        field.height = Number(propHeight.value || 28);
+        field.fontSize = Number(propFontSize.value || 11);
+        field.bold = propBold.checked;
+        field.visible = propVisible.checked;
+        clampField(field);
+        render();
+    }
+
+    [propLabel, propX, propY, propWidth, propHeight, propFontSize].forEach(el => {
+        el.addEventListener('input', updateSelectedField);
+    });
+
+    propBold.addEventListener('change', updateSelectedField);
+    propVisible.addEventListener('change', updateSelectedField);
+
+    document.querySelectorAll('[data-add-field]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const key = btn.dataset.addField;
+            const field = {
+                id: uid(),
+                key,
+                label: labelMap[key] || `{${key}}`,
+                x: 80,
+                y: 80,
+                width: key === 'DecisionNote' ? 560 : (key === 'PaperTitle' ? 500 : 180),
+                height: key === 'DecisionNote' ? 90 : (key === 'Signature' ? 70 : 28),
+                fontSize: key === 'ConferenceName' ? 16 : (key === 'DecisionTitle' ? 15 : 11),
+                bold: key === 'ConferenceName' || key === 'DecisionTitle' || key === 'PaperTitle' || key === 'ChairmanName',
+                visible: true
+            };
+
+            fields.push(field);
+            selectedId = field.id;
+            render();
+        });
+    });
+
+    deleteFieldBtn.addEventListener('click', () => {
+        if (!selectedId) return;
+        fields = fields.filter(x => x.id !== selectedId);
+        selectedId = null;
+        render();
+    });
+
+    templateImageInput.addEventListener('change', event => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            bgImage.src = e.target.result;
+            bgImage.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    form.addEventListener('submit', () => {
+        serializeFields();
+        pageWidthInput.value = templateWidth;
+        pageHeightInput.value = templateHeight;
+    });
+
+    parseInitial();
+    if (fields.length > 0) selectedId = fields[0].id;
+    render();
+})();
+</script>

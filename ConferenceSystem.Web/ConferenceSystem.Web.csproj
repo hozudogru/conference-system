@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="Areas\Author\" />
     <Folder Include="Areas\Reviewer\" />
     <Folder Include="Repositories\" />

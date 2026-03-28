@@ -1,9 +1,4 @@
 body { background: var(--theme-bg, #f7f3ec); color: var(--theme-text, #40352a); }
-.main-navbar { background: var(--theme-header-bg, #f3eedf) !important; border-bottom: 1px solid var(--theme-border, #e8d9bc) !important; box-shadow: 0 8px 24px rgba(111,78,31,.06) !important; }
-.navbar-brand, .navbar-nav .nav-link { color: var(--theme-header-text, #6f4e1f) !important; }
-.navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { background: rgba(176,138,74,.10) !important; color: var(--theme-primary, #b08a4a) !important; }
-.admin-btn { background: linear-gradient(135deg, var(--theme-primary, #b08a4a), var(--theme-accent, #8d6a2b)) !important; box-shadow: 0 10px 24px rgba(176,138,74,.22) !important; }
-.footer { background: var(--theme-footer-bg, #f3eedf) !important; color: var(--theme-footer-text, #6f4e1f) !important; border-top: 1px solid var(--theme-border, #e8d9bc) !important; }
 .home-page-wrap { padding-top: .5rem; }
 .hero-panel { display:grid; grid-template-columns:1.35fr .85fr; gap:26px; align-items:start; margin-bottom:28px; }
 .hero-badge { display:inline-block; background:var(--theme-badge-bg, #f8eacd); color:var(--theme-badge-text, #8d6a2b); padding:8px 14px; border-radius:999px; font-size:.78rem; font-weight:700; margin-bottom:18px; }

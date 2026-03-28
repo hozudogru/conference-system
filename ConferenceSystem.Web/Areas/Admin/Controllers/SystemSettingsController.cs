@@ -1,4 +1,4 @@
-﻿using ConferenceSystem.Web.Entities;
+using ConferenceSystem.Web.Entities;
 using ConferenceSystem.Web.Services;
 using ConferenceSystem.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +11,19 @@ namespace ConferenceSystem.Web.Areas.Admin.Controllers
     {
         private readonly SmtpSettingsService _smtpSettingsService;
         private readonly EmailService _emailService;
+        private readonly SiteSettingsService _siteSettingsService;
+        private readonly IWebHostEnvironment _environment;
 
         public SystemSettingsController(
             SmtpSettingsService smtpSettingsService,
-            EmailService emailService)
+            EmailService emailService,
+            SiteSettingsService siteSettingsService,
+            IWebHostEnvironment environment)
         {
             _smtpSettingsService = smtpSettingsService;
             _emailService = emailService;
+            _siteSettingsService = siteSettingsService;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -37,7 +43,14 @@ namespace ConferenceSystem.Web.Areas.Admin.Controllers
                 UseSsl = entity.UseSsl,
                 SecurityMode = entity.SecurityMode,
                 RequireAuthentication = entity.RequireAuthentication,
-                TimeoutMilliseconds = entity.TimeoutMilliseconds
+                TimeoutMilliseconds = entity.TimeoutMilliseconds,
+                DecisionTemplateImagePath = await _siteSettingsService.GetValueAsync("Letter.TemplateImagePath"),
+                SignatureImagePath = await _siteSettingsService.GetValueAsync("Letter.SignatureImagePath"),
+                ChairmanName = await _siteSettingsService.GetValueAsync("Letter.ChairmanName"),
+                ChairmanTitle = await _siteSettingsService.GetValueAsync("Letter.ChairmanTitle"),
+                LetterTopOffset = ParseFloat(await _siteSettingsService.GetValueAsync("Letter.TopOffset", "110"), 110),
+                LetterLeftOffset = ParseFloat(await _siteSettingsService.GetValueAsync("Letter.LeftOffset", "55"), 55),
+                SignatureTopOffset = ParseFloat(await _siteSettingsService.GetValueAsync("Letter.SignatureTopOffset", "30"), 30)
             };
 
             LoadSecurityModes(model.SecurityMode);
@@ -71,7 +84,38 @@ namespace ConferenceSystem.Web.Areas.Admin.Controllers
 
             await _smtpSettingsService.SaveAsync(entity);
 
-            TempData["Success"] = "SMTP ayarları kaydedildi.";
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "letters");
+            Directory.CreateDirectory(uploadsFolder);
+
+            if (model.DecisionTemplateImageFile != null && model.DecisionTemplateImageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(model.DecisionTemplateImageFile.FileName);
+                var templateFileName = $"decision-template{ext}";
+                var templatePath = Path.Combine(uploadsFolder, templateFileName);
+                using var stream = new FileStream(templatePath, FileMode.Create);
+                await model.DecisionTemplateImageFile.CopyToAsync(stream);
+                model.DecisionTemplateImagePath = $"/uploads/letters/{templateFileName}";
+            }
+
+            if (model.SignatureImageFile != null && model.SignatureImageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(model.SignatureImageFile.FileName);
+                var signFileName = $"decision-signature{ext}";
+                var signPath = Path.Combine(uploadsFolder, signFileName);
+                using var stream = new FileStream(signPath, FileMode.Create);
+                await model.SignatureImageFile.CopyToAsync(stream);
+                model.SignatureImagePath = $"/uploads/letters/{signFileName}";
+            }
+
+            await _siteSettingsService.SetValueAsync("Letter.TemplateImagePath", model.DecisionTemplateImagePath ?? "");
+            await _siteSettingsService.SetValueAsync("Letter.SignatureImagePath", model.SignatureImagePath ?? "");
+            await _siteSettingsService.SetValueAsync("Letter.ChairmanName", model.ChairmanName ?? "");
+            await _siteSettingsService.SetValueAsync("Letter.ChairmanTitle", model.ChairmanTitle ?? "");
+            await _siteSettingsService.SetValueAsync("Letter.TopOffset", model.LetterTopOffset.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            await _siteSettingsService.SetValueAsync("Letter.LeftOffset", model.LetterLeftOffset.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            await _siteSettingsService.SetValueAsync("Letter.SignatureTopOffset", model.SignatureTopOffset.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+            TempData["Success"] = "SMTP ve karar mektubu ayarları kaydedildi.";
             return RedirectToAction(nameof(Smtp));
         }
 
@@ -143,6 +187,13 @@ Conference System
                 new { Value = "StartTls", Text = "StartTls" },
                 new { Value = "None", Text = "None" }
             }, "Value", "Text", selectedValue);
+        }
+
+        private static float ParseFloat(string? value, float defaultValue)
+        {
+            return float.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var result)
+                ? result
+                : defaultValue;
         }
     }
 }

@@ -2,17 +2,43 @@
 @inject AppDbContext DbContext
 
 @{
-    var path = Context.Request.Path.ToString().ToLower();
+    var path = Context.Request.Path.ToString().ToLowerInvariant();
     var portalRole = Context.Session.GetString("PortalRole");
 
     string ActiveClass(params string[] urls)
     {
-        foreach (var url in urls)
+        foreach (var rawUrl in urls)
         {
-            if (!string.IsNullOrWhiteSpace(url) && path.StartsWith(url.ToLower()))
+            if (string.IsNullOrWhiteSpace(rawUrl))
+                continue;
+
+            var normalizedUrl = rawUrl.ToLowerInvariant();
+
+            if (normalizedUrl == "/")
+            {
+                if (path == "/" || string.IsNullOrWhiteSpace(path))
+                    return "active";
+            }
+            else if (path == normalizedUrl || path.StartsWith(normalizedUrl + "/") || path.StartsWith(normalizedUrl + "?"))
+            {
                 return "active";
+            }
         }
+
         return "";
+    }
+
+    string BuildInitials(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "MT";
+
+        var parts = value
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2)
+            .Select(x => x.Substring(0, 1).ToUpperInvariant());
+
+        return string.Concat(parts);
     }
 
     var currentConference = DbContext.Conferences
@@ -34,6 +60,15 @@
         .ToDictionary(x => x.Key, x => x.Value);
 
     string Theme(string key, string fallback) => themeMap.TryGetValue(key, out var v) && !string.IsNullOrWhiteSpace(v) ? v : fallback;
+
+    var brandLogoUrl = Theme("Theme.BrandLogoUrl", currentConference?.LogoPath ?? "");
+    var brandText = Theme("Theme.BrandText", currentConference?.Name ?? "Conference System");
+    var loginButtonText = Theme("Theme.LoginButtonText", "Giriş Yap");
+    var loginButtonUrl = Theme("Theme.LoginButtonUrl", "/AdminAuth/Login");
+    var brandInitials = BuildInitials(currentConference?.ShortName ?? currentConference?.Name ?? brandText);
+    var topInfo = currentConference != null
+        ? $"{currentConference.StartDate:dd MMMM yyyy} - {currentConference.EndDate:dd MMMM yyyy} • {currentConference.Location}"
+        : "Konferans yönetim sistemi";
 }
 
 <!DOCTYPE html>
@@ -44,7 +79,7 @@
     <title>@ViewData["Title"] - Conference System</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/home-dynamic.css" asp-append-version="true" />
 
     <style>
@@ -68,23 +103,52 @@
             --theme-badge-text: @Theme("Theme.BadgeText", "#8D6A2B");
         }
 
-        .page-wrapper { min-height: calc(100vh - 150px); }
+        .page-wrapper { min-height: calc(100vh - 170px); }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light main-navbar">
+    <header class="site-header-modern">
+        <div class="header-topline">
+            <div class="container d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                <div class="header-topline-text">@topInfo</div>
+                <div class="header-topline-actions">
+                    @if (!string.IsNullOrWhiteSpace(portalRole))
+                    {
+                        <form asp-controller="Access" asp-action="Logout" method="post" class="m-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="header-chip header-chip-outline">Panelden Çık</button>
+                        </form>
+                    }
+                    <a class="header-chip" href="@loginButtonUrl">@loginButtonText</a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-xl main-navbar modern-navbar">
             <div class="container">
-                <a class="navbar-brand" href="/">
-                    @(currentConference?.ShortName ?? "Conference System")
+                <a class="navbar-brand brand-modern" href="/">
+                    @if (!string.IsNullOrWhiteSpace(brandLogoUrl))
+                    {
+                        <span class="brand-logo-wrap">
+                            <img src="@brandLogoUrl" alt="@brandText" class="brand-logo-img" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="brand-logo-fallback">@brandInitials</span>
+                    }
+                    <span class="brand-text-wrap">
+                        <span class="brand-eyebrow">Konferans Platformu</span>
+                        <span class="brand-title">@brandText</span>
+                    </span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <button class="navbar-toggler modern-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Menüyü aç">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav mx-auto align-items-xl-center site-menu-modern mb-2 mb-xl-0">
                         <li class="nav-item"><a class="nav-link @ActiveClass("/")" href="/">Ana Sayfa</a></li>
                         @foreach (var item in publicMenuItems)
                         {
@@ -99,12 +163,11 @@
                                 </a>
                             </li>
                         }
-
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle @ActiveClass("/submission", "/submissiontracking", "/access/login")" href="#" id="katilimDropdown" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle @ActiveClass("/submission", "/submissiontracking", "/access/login", "/program")" href="#" id="katilimDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Katılım
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu modern-dropdown" aria-labelledby="katilimDropdown">
                                 <li><a class="dropdown-item @ActiveClass("/submission/create")" href="/Submission/Create">Bildiri Gönder</a></li>
                                 <li><a class="dropdown-item @ActiveClass("/submissiontracking")" href="/SubmissionTracking">Başvuru Takibi</a></li>
                                 <li><a class="dropdown-item @ActiveClass("/access/login")" href="/Access/Login">Panel Girişi</a></li>
@@ -113,15 +176,8 @@
                         </li>
                     </ul>
 
-                    <div class="d-flex gap-2 align-items-center">
-                        @if (!string.IsNullOrWhiteSpace(portalRole))
-                        {
-                            <form asp-controller="Access" asp-action="Logout" method="post" class="m-0">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-secondary">Panelden Çık</button>
-                            </form>
-                        }
-                        <a class="admin-btn" href="/AdminAuth/Login">Editör Girişi</a>
+                    <div class="d-none d-xl-flex align-items-center gap-2 header-utility-right">
+                        <a class="nav-cta" href="/Submission/Create">Özet Gönder</a>
                     </div>
                 </div>
             </div>
@@ -134,7 +190,7 @@
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer site-footer-modern">
         <div class="container text-center">© @DateTime.Now.Year - @(currentConference?.Name ?? "Conference System")</div>
     </footer>
 

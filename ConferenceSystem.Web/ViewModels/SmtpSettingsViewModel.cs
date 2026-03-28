@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace ConferenceSystem.Web.ViewModels
 {
@@ -33,5 +34,16 @@ namespace ConferenceSystem.Web.ViewModels
 
         [EmailAddress]
         public string? TestEmail { get; set; }
+
+        public string DecisionTemplateImagePath { get; set; } = "";
+        public string SignatureImagePath { get; set; } = "";
+        public string ChairmanName { get; set; } = "";
+        public string ChairmanTitle { get; set; } = "";
+        public float LetterTopOffset { get; set; } = 110;
+        public float LetterLeftOffset { get; set; } = 55;
+        public float SignatureTopOffset { get; set; } = 30;
+
+        public IFormFile? DecisionTemplateImageFile { get; set; }
+        public IFormFile? SignatureImageFile { get; set; }
     }
 }

@@ -3,12 +3,14 @@ using ConferenceSystem.Web.Data;
 using ConferenceSystem.Web.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ConferenceSystem.Web.Services;
 
 namespace ConferenceSystem.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class SubmissionsController : Controller
     {
+        
         private readonly AppDbContext _context;
 
         public SubmissionsController(AppDbContext context)
