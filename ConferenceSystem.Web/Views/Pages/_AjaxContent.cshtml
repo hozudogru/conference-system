@@ -1,0 +1,12 @@
+@model ConferenceSystem.Web.Entities.ContentPage
+
+<article class="ajax-content-shell glass-panel glass-panel-soft">
+    <div class="ajax-content-header">
+        <span class="ajax-content-kicker">Bilgi sayfası</span>
+        <h2 class="ajax-content-title">@Model.Title</h2>
+    </div>
+
+    <div class="ajax-content-body rich-content">
+        @Html.Raw(Model.Content)
+    </div>
+</article>

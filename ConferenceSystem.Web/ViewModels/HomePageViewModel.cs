@@ -19,5 +19,9 @@ namespace ConferenceSystem.Web.ViewModels
         public List<RegistrationCategory> RegistrationCategories { get; set; } = new();
 
         public List<Speaker> Speakers { get; set; } = new();
+
+        public List<MenuItem> MenuItems { get; set; } = new();
+
+        public List<string> CarouselImageUrls { get; set; } = new();
     }
 }

@@ -1,4 +1,5 @@
 @model ConferenceSystem.Web.ViewModels.HomePageViewModel
+@using System.Text.RegularExpressions
 
 @{
     ViewData["Title"] = "Ana Sayfa";
@@ -6,254 +7,340 @@
 
     var hp = Model.HomePageSetting;
     var conference = Model.ActiveConference;
+
+    var menuItems = Model.MenuItems
+        .Where(x => !string.IsNullOrWhiteSpace(x.Url) && x.Url.StartsWith("/sayfa/", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(x => x.SortOrder)
+        .ToList();
+
+    string ExtractSlug(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+        return url.Replace("/sayfa/", "", StringComparison.OrdinalIgnoreCase).Trim('/');
+    }
+
+    string StripHtml(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+        return Regex.Replace(input, "<.*?>", string.Empty).Trim();
+    }
+
+    string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "K";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0][0].ToString().ToUpperInvariant();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpperInvariant();
+    }
+
+    string MenuIcon(string title)
+    {
+        var value = (title ?? string.Empty).ToLowerInvariant();
+        if (value.Contains("kurul")) return "users";
+        if (value.Contains("program")) return "calendar";
+        if (value.Contains("tarih")) return "clock";
+        if (value.Contains("ücret") || value.Contains("ucret")) return "wallet";
+        if (value.Contains("konaklama")) return "building";
+        if (value.Contains("iletişim") || value.Contains("iletisim")) return "mail";
+        if (value.Contains("duyuru")) return "bell";
+        return "file";
+    }
+
+    string IconSvg(string name)
+    {
+        return name switch
+        {
+            "users" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M22 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></svg>",
+            "calendar" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>",
+            "clock" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>",
+            "wallet" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z'/><path d='M16 12h5'/><circle cx='16' cy='12' r='1'/></svg>",
+            "building" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M3 21h18'/><path d='M5 21V7l7-4 7 4v14'/><path d='M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01'/></svg>",
+            "mail" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='m3 7 9 6 9-6'/></svg>",
+            "bell" => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .53-.21 1.04-.59 1.4L4 17h5'/><path d='M10 21a2 2 0 0 0 4 0'/></svg>",
+            _ => "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6'/></svg>"
+        };
+    }
 }
 
-<div class="home-page-wrap">
-    @if (conference != null)
-    {
-        <section class="hero-panel">
-            <div>
-                @if (!string.IsNullOrWhiteSpace(hp?.HeroBadgeText))
-                {
-                    <div class="hero-badge">@hp.HeroBadgeText</div>
-                }
-                else
-                {
-                    <div class="hero-badge">@conference.StartDate.ToString("dd MMMM yyyy") - @conference.EndDate.ToString("dd MMMM yyyy") • @conference.Location</div>
-                }
-
-                <h1 class="hero-title">
-                    @(string.IsNullOrWhiteSpace(hp?.HeroTitle) ? conference.Name : hp!.HeroTitle)
-                </h1>
-
-                <div class="hero-subtitle">
-                    @(string.IsNullOrWhiteSpace(hp?.HeroDescription) ? conference.Description : hp!.HeroDescription)
-                </div>
-
-                <div class="hero-actions">
-                    <a class="btn-theme" href="@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonUrl) ? "/Submission/Create" : hp!.HeroPrimaryButtonUrl)">
-                        @(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonText) ? "Özet Gönder" : hp!.HeroPrimaryButtonText)
-                    </a>
-                    <a class="btn-theme-outline" href="@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonUrl) ? $"/Program?conferenceId={conference.Id}" : hp!.HeroSecondaryButtonUrl)">
-                        @(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonText) ? "Programı İncele" : hp!.HeroSecondaryButtonText)
-                    </a>
-                </div>
-
-                <div class="quick-cards">
-                    <div class="quick-card">
-                        <div class="quick-card-label">@(hp?.HighlightBox1Title ?? "Özet Başlangıcı")</div>
-                        <div class="quick-card-value">@(string.IsNullOrWhiteSpace(hp?.HighlightBox1Value) ? (Model.ImportantDates.FirstOrDefault()?.DateValue.ToString("dd MMMM yyyy") ?? "TBA") : hp!.HighlightBox1Value)</div>
-                    </div>
-                    <div class="quick-card">
-                        <div class="quick-card-label">@(hp?.HighlightBox2Title ?? "Kongre Tarihi")</div>
-                        <div class="quick-card-value">@(string.IsNullOrWhiteSpace(hp?.HighlightBox2Value) ? $"{conference.StartDate:dd MMMM yyyy} - {conference.EndDate:dd MMMM yyyy}" : hp!.HighlightBox2Value)</div>
-                    </div>
-                    <div class="quick-card">
-                        <div class="quick-card-label">@(hp?.HighlightBox3Title ?? "Tam Metin")</div>
-                        <div class="quick-card-value">@(string.IsNullOrWhiteSpace(hp?.HighlightBox3Value) ? "TBA" : hp!.HighlightBox3Value)</div>
-                    </div>
+@if (conference == null)
+{
+    <div class="glass-wire-empty">
+        <h1>Aktif konferans bulunamadı</h1>
+        <p>Yönetim panelinden aktif konferans seçildiğinde ana sayfa otomatik dolacaktır.</p>
+    </div>
+}
+else
+{
+    <section class="wire-modern-home">
+        <div class="wire-topbar glass-wire">
+            <div class="wire-brand">
+                <div class="wire-brand-logo">@(string.IsNullOrWhiteSpace(conference.ShortName) ? Initials(conference.Name) : conference.ShortName.Substring(0, 1).ToUpperInvariant())</div>
+                <div class="wire-brand-text">
+                    <div class="wire-brand-kicker">Konferans Platformu</div>
+                    <div class="wire-brand-title">@conference.Name</div>
                 </div>
             </div>
 
-            <div>
-                <div class="poster-card">
-                    @if (!string.IsNullOrWhiteSpace(hp?.PosterImageUrl))
-                    {
-                        <img src="@hp.PosterImageUrl" alt="Poster" />
-                    }
-                    else if (!string.IsNullOrWhiteSpace(conference.LogoPath))
-                    {
-                        <img src="@conference.LogoPath" alt="@conference.Name" />
-                    }
-                    else
-                    {
-                        <div class="poster-placeholder">Poster görseli admin panelinden eklenebilir.</div>
-                    }
-                </div>
+            <div class="wire-title-center">
+                <span class="wire-title-pill">@(conference.StartDate.ToString("dd MMMM yyyy")) - @(conference.EndDate.ToString("dd MMMM yyyy")) · @conference.Location</span>
+                <h1>@conference.Name</h1>
             </div>
-        </section>
 
-        <section class="home-two-col">
-            @if (hp?.ShowImportantDates != false)
-            {
-                <div class="home-panel">
-                    <h2 class="home-panel-title">Önemli Tarihler</h2>
-                    @if (Model.ImportantDates.Any())
-                    {
-                        @foreach (var item in Model.ImportantDates)
-                        {
-                            <div class="info-row">
-                                <div class="info-row-date">@item.DateValue.ToString("dd MMMM yyyy")</div>
-                                <div class="info-row-content">
-                                    <div class="info-row-title">@item.Title</div>
-                                    @if (!string.IsNullOrWhiteSpace(item.Description))
-                                    {
-                                        <div class="info-row-desc">@item.Description</div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="empty-note">Henüz önemli tarih eklenmedi.</div>
-                    }
-                </div>
-            }
+            <div class="wire-top-actions">
+                <a class="wire-login-btn" href="/Access/Login">Giriş / Kayıt</a>
+            </div>
+        </div>
 
-            @if (hp?.ShowRegistrationCategories != false)
-            {
-                <div class="home-panel">
-                    <h2 class="home-panel-title">Kayıt Kategorileri</h2>
-                    @if (Model.RegistrationCategories.Any())
-                    {
-                        @foreach (var item in Model.RegistrationCategories)
-                        {
-                            <div class="info-row fee-row">
-                                <div class="info-row-content">
-                                    <div class="info-row-title">@item.CategoryName</div>
-                                    @if (!string.IsNullOrWhiteSpace(item.Description))
-                                    {
-                                        <div class="info-row-desc">@item.Description</div>
-                                    }
-                                </div>
-                                <div class="fee-badge">@item.Fee.ToString("N0") @item.Currency</div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="empty-note">Henüz kayıt kategorisi eklenmedi.</div>
-                    }
-                </div>
-            }
-        </section>
-
-        @if (hp?.ShowAnnouncements != false)
-        {
-            <section class="home-panel mt-4">
-                <h2 class="home-panel-title">Son Duyurular</h2>
-                @if (Model.Announcements.Any())
-                {
-                    foreach (var item in Model.Announcements)
-                    {
-                        <div class="announcement-row">
-                            <div class="announcement-title">@item.Title</div>
-                            <div class="announcement-date">@item.PublishDate.ToString("dd.MM.yyyy HH:mm")</div>
-                            @if (!string.IsNullOrWhiteSpace(item.Summary))
-                            {
-                                <div class="announcement-summary">@item.Summary</div>
-                            }
+        <section class="wire-hero-carousel glass-wire">
+            <div class="wire-slider" id="wireHeroSlider">
+                <div class="wire-slide is-active">
+                    <div class="wire-slide-copy">
+                        <span class="wire-overline">Carousel Resim Galerisi</span>
+                        <h2>@conference.Name</h2>
+                        <p>@(!string.IsNullOrWhiteSpace(hp?.HeroDescription) ? hp!.HeroDescription : conference.Description)</p>
+                        <div class="wire-cta-row">
+                            <a class="wire-primary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonUrl) ? "/Submission/Create" : hp!.HeroPrimaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonText) ? "Özet Gönder" : hp!.HeroPrimaryButtonText)</a>
+                            <a class="wire-secondary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonUrl) ? $"/Program?conferenceId={conference.Id}" : hp!.HeroSecondaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonText) ? "Programı İncele" : hp!.HeroSecondaryButtonText)</a>
                         </div>
-                    }
-                }
-                else
-                {
-                    <div class="empty-note">Henüz duyuru bulunmuyor.</div>
-                }
-            </section>
-        }
-
-        @if (hp?.ShowSpeakers != false)
-        {
-            <section class="mt-4">
-                <h2 class="section-heading">Davetli Konuşmacılar</h2>
-                @if (Model.Speakers.Any())
-                {
-                    <div class="speakers-grid">
-                        @foreach (var item in Model.Speakers)
+                    </div>
+                    <div class="wire-slide-visual">
+                        @if (!string.IsNullOrWhiteSpace(hp?.PosterImageUrl))
                         {
-                            <div class="speaker-card">
-                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                            <img src="@hp.PosterImageUrl" alt="Poster" class="wire-slide-image" />
+                        }
+                        else if (!string.IsNullOrWhiteSpace(conference.LogoPath))
+                        {
+                            <img src="@conference.LogoPath" alt="@conference.Name" class="wire-slide-image wire-slide-image-logo" />
+                        }
+                        else
+                        {
+                            <div class="wire-slide-placeholder">Poster veya slider görseli burada görünecek.</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="wire-slide">
+                    <div class="wire-slide-copy">
+                        <span class="wire-overline">Kongre Özeti</span>
+                        <h2>Ana vitrin</h2>
+                        <p>Kongreye ait önemli tarihler, program bilgileri ve başvuru bağlantıları bu alanda öne çıkarılır.</p>
+                        <div class="wire-slide-mini-grid">
+                            <article class="wire-slide-mini-card">
+                                <span>Özet Gönderim</span>
+                                <strong>@(Model.ImportantDates.FirstOrDefault()?.DateValue.ToString("dd MMMM yyyy") ?? "TBA")</strong>
+                            </article>
+                            <article class="wire-slide-mini-card">
+                                <span>Kongre Tarihi</span>
+                                <strong>@conference.StartDate.ToString("dd MMMM yyyy") - @conference.EndDate.ToString("dd MMMM yyyy")</strong>
+                            </article>
+                            <article class="wire-slide-mini-card">
+                                <span>Konum</span>
+                                <strong>@conference.Location</strong>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wire-slide">
+                    <div class="wire-slide-copy">
+                        <span class="wire-overline">Duyuru Özeti</span>
+                        <h2>Son gelişmeler</h2>
+                        @if (Model.Announcements.Any())
+                        {
+                            <div class="wire-slide-list">
+                                @foreach (var item in Model.Announcements.Take(3))
                                 {
-                                    <img src="@item.ImageUrl" alt="@item.FullName" />
+                                    <div class="wire-slide-list-item">
+                                        <strong>@item.Title</strong>
+                                        <span>@item.PublishDate.ToString("dd.MM.yyyy")</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p>Henüz slider içinde gösterilecek duyuru eklenmedi.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="wire-slider-arrow prev" id="wireSliderPrev" aria-label="Önceki slide">‹</button>
+            <button type="button" class="wire-slider-arrow next" id="wireSliderNext" aria-label="Sonraki slide">›</button>
+
+            <div class="wire-slider-dots" id="wireSliderDots">
+                <button type="button" class="is-active" data-slide="0" aria-label="1. slide"></button>
+                <button type="button" data-slide="1" aria-label="2. slide"></button>
+                <button type="button" data-slide="2" aria-label="3. slide"></button>
+            </div>
+        </section>
+
+        <div class="wire-main-grid">
+            <aside class="wire-left-menu glass-wire">
+                <nav class="wire-menu-list" id="ajaxSidebarMenu">
+                    <button type="button" class="wire-menu-item active" data-home-tab="home">
+                        <span class="wire-menu-icon">@Html.Raw(IconSvg("file"))</span>
+                        <span class="wire-menu-label">Ana Sayfa</span>
+                    </button>
+
+                    @foreach (var item in menuItems)
+                    {
+                        var slug = ExtractSlug(item.Url);
+                        <button type="button"
+                                class="wire-menu-item"
+                                data-ajax-slug="@slug"
+                                data-ajax-title="@item.Title">
+                            <span class="wire-menu-icon">@Html.Raw(IconSvg(MenuIcon(item.Title)))</span>
+                            <span class="wire-menu-label">@item.Title</span>
+                        </button>
+                    }
+
+                    @if (!menuItems.Any())
+                    {
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Kongre Hakkında</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Kurullar</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Kongre Programı</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Önemli Tarihler</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Ücretler</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Konaklama</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">İletişim</span></button>
+                        <button type="button" class="wire-menu-item"><span class="wire-menu-label">Duyurular</span></button>
+                    }
+                </nav>
+            </aside>
+
+            <section class="wire-right-stage">
+                <div id="homeDefaultContent" class="wire-home-stage">
+                    <section class="glass-wire wire-summary-panel">
+                        <div class="wire-panel-head compact">
+                            <div>
+                                <span class="wire-overline">Ana Vitrin</span>
+                                <h2>Öne çıkan bilgiler</h2>
+                            </div>
+                            <div class="wire-cta-row">
+                                <a class="wire-primary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonUrl) ? "/Submission/Create" : hp!.HeroPrimaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonText) ? "Özet Gönder" : hp!.HeroPrimaryButtonText)</a>
+                                <a class="wire-secondary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonUrl) ? $"/Program?conferenceId={conference.Id}" : hp!.HeroSecondaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonText) ? "Programı İncele" : hp!.HeroSecondaryButtonText)</a>
+                            </div>
+                        </div>
+                        <div class="wire-highlight-grid">
+                            <article class="wire-highlight-card">
+                                <span>@(string.IsNullOrWhiteSpace(hp?.HighlightBox1Title) ? "Özet Gönderim Başlangıcı" : hp!.HighlightBox1Title)</span>
+                                <strong>@(string.IsNullOrWhiteSpace(hp?.HighlightBox1Value) ? (Model.ImportantDates.FirstOrDefault()?.DateValue.ToString("dd MMMM yyyy") ?? "TBA") : hp!.HighlightBox1Value)</strong>
+                            </article>
+                            <article class="wire-highlight-card">
+                                <span>@(string.IsNullOrWhiteSpace(hp?.HighlightBox2Title) ? "Kongre Tarihi" : hp!.HighlightBox2Title)</span>
+                                <strong>@(string.IsNullOrWhiteSpace(hp?.HighlightBox2Value) ? $"{conference.StartDate:dd MMMM yyyy} - {conference.EndDate:dd MMMM yyyy}" : hp!.HighlightBox2Value)</strong>
+                            </article>
+                            <article class="wire-highlight-card">
+                                <span>@(string.IsNullOrWhiteSpace(hp?.HighlightBox3Title) ? "Tam Metin" : hp!.HighlightBox3Title)</span>
+                                <strong>@(string.IsNullOrWhiteSpace(hp?.HighlightBox3Value) ? "TBA" : hp!.HighlightBox3Value)</strong>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="wire-speakers-grid">
+                        @{
+                            var speakers = Model.Speakers.Take(3).ToList();
+                        }
+                        @for (var i = 0; i < 3; i++)
+                        {
+                            var speaker = i < speakers.Count ? speakers[i] : null;
+                            <article class="wire-speaker-card glass-wire">
+                                <div class="wire-speaker-head">
+                                    <span class="wire-overline">Davetli Konuşmacılar</span>
+                                    <h3>@(speaker?.FullName ?? "Senin önerin")</h3>
+                                </div>
+
+                                @if (speaker != null)
+                                {
+                                    <div class="wire-speaker-body">
+                                        @if (!string.IsNullOrWhiteSpace(speaker.ImageUrl))
+                                        {
+                                            <img src="@speaker.ImageUrl" alt="@speaker.FullName" class="wire-speaker-avatar" />
+                                        }
+                                        else
+                                        {
+                                            <div class="wire-speaker-avatar wire-speaker-avatar-fallback">@Initials(speaker.FullName)</div>
+                                        }
+
+                                        <div class="wire-speaker-meta">
+                                            @if (!string.IsNullOrWhiteSpace(speaker.Title))
+                                            {
+                                                <div class="wire-speaker-role">@speaker.Title</div>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(speaker.Institution))
+                                            {
+                                                <div class="wire-speaker-inst">@speaker.Institution</div>
+                                            }
+                                            <p>@(string.IsNullOrWhiteSpace(speaker.Bio) ? "Konuşmacı bilgisi yakında eklenecek." : StripHtml(speaker.Bio).Length > 180 ? StripHtml(speaker.Bio).Substring(0, 180) + "..." : StripHtml(speaker.Bio))</p>
+                                        </div>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <div class="speaker-avatar-placeholder">@item.FullName.Substring(0,1)</div>
+                                    <div class="wire-empty-box">
+                                        <span>Konuşmacı alanı burada gösterilecek.</span>
+                                    </div>
                                 }
-                                <div class="speaker-name">@item.FullName</div>
-                                @if (!string.IsNullOrWhiteSpace(item.Title))
-                                {
-                                    <div class="speaker-meta">@item.Title</div>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(item.Institution))
-                                {
-                                    <div class="speaker-meta">@item.Institution</div>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(item.Bio))
-                                {
-                                    <div class="speaker-bio">@item.Bio</div>
-                                }
-                            </div>
+                            </article>
                         }
-                    </div>
-                }
-                else
-                {
-                    <div class="empty-note">Davetli konuşmacı bulunmamaktadır.</div>
-                }
-            </section>
-        }
+                    </section>
 
-        @if (hp?.ShowCommitteeMembers == true)
-        {
-            <section class="home-panel mt-4">
-                <h2 class="home-panel-title">Kurullar</h2>
-                @if (Model.CommitteeMembers.Any())
-                {
-                    var groups = Model.CommitteeMembers.GroupBy(x => x.CommitteeType).OrderBy(x => x.Key);
-                    foreach (var group in groups)
-                    {
-                        <div class="committee-group">
-                            <div class="committee-title">@group.Key</div>
-                            <ul class="committee-list">
-                                @foreach (var member in group)
-                                {
-                                    <li>
-                                        <strong>@member.FullName</strong>
-                                        @if (!string.IsNullOrWhiteSpace(member.Title))
-                                        {
-                                            <span> - @member.Title</span>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(member.Institution))
-                                        {
-                                            <div class="committee-inst">@member.Institution</div>
-                                        }
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="empty-note">Henüz kurul bilgisi girilmedi.</div>
-                }
-            </section>
-        }
+                    <section class="wire-bottom-grid">
+                        <article class="glass-wire wire-info-card">
+                            <div class="wire-panel-head compact">
+                                <div>
+                                    <span class="wire-overline">Duyurular</span>
+                                    <h3>Son güncellemeler</h3>
+                                </div>
+                            </div>
 
-        @if (hp?.ShowContact != false)
-        {
-            <section class="contact-panel">
-                <div>
-                    <h2 class="home-panel-title mb-2">@(string.IsNullOrWhiteSpace(hp?.ContactTitle) ? "İletişim" : hp!.ContactTitle)</h2>
-                    @if (!string.IsNullOrWhiteSpace(hp?.ContactHtml))
-                    {
-                        @Html.Raw(hp.ContactHtml)
-                    }
-                    else
-                    {
-                        <p class="mb-1"><strong>@conference.Location</strong></p>
-                        <p class="mb-0 text-muted">İletişim içeriğini admin panelinden düzenleyebilirsiniz.</p>
-                    }
+                            @if (Model.Announcements.Any())
+                            {
+                                <div class="wire-list">
+                                    @foreach (var item in Model.Announcements.Take(4))
+                                    {
+                                        <div class="wire-list-item">
+                                            <strong>@item.Title</strong>
+                                            <span>@item.PublishDate.ToString("dd.MM.yyyy")</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="wire-empty-box small"><span>Henüz duyuru eklenmedi.</span></div>
+                            }
+                        </article>
+
+                        <article class="glass-wire wire-info-card">
+                            <div class="wire-panel-head compact">
+                                <div>
+                                    <span class="wire-overline">Alt Bilgi</span>
+                                    <h3>Hızlı bilgiler</h3>
+                                </div>
+                            </div>
+
+                            <div class="wire-footer-meta">
+                                <div><strong>Yer:</strong> @conference.Location</div>
+                                <div><strong>Tarih:</strong> @conference.StartDate.ToString("dd MMM yyyy") - @conference.EndDate.ToString("dd MMM yyyy")</div>
+                                <div><strong>İletişim:</strong> @(string.IsNullOrWhiteSpace(hp?.ContactTitle) ? "Sekretarya" : hp!.ContactTitle)</div>
+                            </div>
+                        </article>
+                    </section>
                 </div>
-                <a class="btn-theme" href="/Access/Login">Katılım / Başvuru</a>
+
+                <div id="ajaxContentStage" class="wire-ajax-stage glass-wire ajax-stage-hidden">
+                    <div class="wire-ajax-toolbar">
+                        <div>
+                            <span class="wire-overline">İçerik Paneli</span>
+                            <h2 id="ajaxStageTitle">Sayfa</h2>
+                        </div>
+                        <button type="button" id="ajaxBackHome" class="wire-secondary-btn">Ana sayfaya dön</button>
+                    </div>
+                    <div id="ajaxContentHost"></div>
+                </div>
             </section>
-        }
-    }
-    else
-    {
-        <div class="alert alert-warning">Aktif konferans bulunamadı.</div>
-    }
-</div>
+        </div>
+    </section>
+}

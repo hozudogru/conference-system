@@ -2,16 +2,19 @@ using ConferenceSystem.Web.Data;
 using ConferenceSystem.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ConferenceSystem.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public HomeController(AppDbContext context)
+        public HomeController(AppDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         public async Task<IActionResult> Index()
@@ -63,6 +66,11 @@ namespace ConferenceSystem.Web.Controllers
                     .FirstOrDefaultAsync(x => x.ConferenceId == activeConference.Id);
             }
 
+            var menuItems = await _context.MenuItems
+                .Where(x => x.IsActive && x.MenuLocation == "Public")
+                .OrderBy(x => x.SortOrder)
+                .ToListAsync();
+
             var themeKeys = new[]
             {
                 "Theme.Primary",
@@ -86,23 +94,23 @@ namespace ConferenceSystem.Web.Controllers
 
             var themeDefaults = new Dictionary<string, string>
             {
-                ["Theme.Primary"] = "#B08A4A",
-                ["Theme.Secondary"] = "#F5E6C8",
-                ["Theme.Accent"] = "#8D6A2B",
-                ["Theme.Background"] = "#F7F3EC",
-                ["Theme.Surface"] = "#FFFFFF",
-                ["Theme.Border"] = "#E8D9BC",
-                ["Theme.Heading"] = "#6F4E1F",
-                ["Theme.Text"] = "#40352A",
-                ["Theme.Muted"] = "#8C7A64",
-                ["Theme.HeaderBg"] = "#F3EEDF",
-                ["Theme.HeaderText"] = "#6F4E1F",
-                ["Theme.FooterBg"] = "#F3EEDF",
-                ["Theme.FooterText"] = "#6F4E1F",
-                ["Theme.ButtonBg"] = "#B08A4A",
+                ["Theme.Primary"] = "#7C5CFC",
+                ["Theme.Secondary"] = "#D8CCFF",
+                ["Theme.Accent"] = "#22D3EE",
+                ["Theme.Background"] = "#0B1020",
+                ["Theme.Surface"] = "rgba(255,255,255,0.08)",
+                ["Theme.Border"] = "rgba(255,255,255,0.14)",
+                ["Theme.Heading"] = "#F8FAFC",
+                ["Theme.Text"] = "#D9E2F2",
+                ["Theme.Muted"] = "#9FB0CC",
+                ["Theme.HeaderBg"] = "rgba(11,16,32,0.75)",
+                ["Theme.HeaderText"] = "#F8FAFC",
+                ["Theme.FooterBg"] = "rgba(11,16,32,0.8)",
+                ["Theme.FooterText"] = "#CBD5E1",
+                ["Theme.ButtonBg"] = "#7C5CFC",
                 ["Theme.ButtonText"] = "#FFFFFF",
-                ["Theme.BadgeBg"] = "#F8EACD",
-                ["Theme.BadgeText"] = "#8D6A2B"
+                ["Theme.BadgeBg"] = "rgba(34,211,238,0.14)",
+                ["Theme.BadgeText"] = "#67E8F9"
             };
 
             var rawSettings = await _context.SiteSettings
@@ -110,6 +118,21 @@ namespace ConferenceSystem.Web.Controllers
                 .ToDictionaryAsync(x => x.Key, x => x.Value);
 
             var finalTheme = themeDefaults.ToDictionary(x => x.Key, x => rawSettings.ContainsKey(x.Key) && !string.IsNullOrWhiteSpace(rawSettings[x.Key]) ? rawSettings[x.Key] : x.Value);
+
+            var carouselImageUrls = new List<string>();
+            if (activeConference != null)
+            {
+                var carouselFolder = Path.Combine(_environment.WebRootPath, "uploads", "home-carousel", activeConference.Id.ToString());
+                if (Directory.Exists(carouselFolder))
+                {
+                    carouselImageUrls = Directory.GetFiles(carouselFolder)
+                        .Select(Path.GetFileName)
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                        .Select(x => $"/uploads/home-carousel/{activeConference.Id}/{x}")
+                        .ToList();
+                }
+            }
 
             var model = new HomePageViewModel
             {
@@ -120,7 +143,9 @@ namespace ConferenceSystem.Web.Controllers
                 RegistrationCategories = registrationCategories,
                 Speakers = speakers,
                 HomePageSetting = homePageSetting,
-                ThemeSettings = finalTheme
+                ThemeSettings = finalTheme,
+                MenuItems = menuItems,
+                CarouselImageUrls = carouselImageUrls
             };
 
             return View(model);

@@ -1,4 +1,4 @@
-﻿using ConferenceSystem.Web.Data;
+using ConferenceSystem.Web.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +24,18 @@ namespace ConferenceSystem.Web.Controllers
                 return NotFound();
 
             return View(page);
+        }
+
+        [HttpGet("icerik/{slug}")]
+        public async Task<IActionResult> AjaxContent(string slug)
+        {
+            var page = await _context.Pages
+                .FirstOrDefaultAsync(x => x.Slug == slug && x.IsPublished);
+
+            if (page == null)
+                return PartialView("_AjaxContentNotFound", slug);
+
+            return PartialView("_AjaxContent", page);
         }
     }
 }

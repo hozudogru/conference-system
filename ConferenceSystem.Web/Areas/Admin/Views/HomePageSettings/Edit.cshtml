@@ -3,109 +3,162 @@
     ViewData["Title"] = "Ana Sayfa Ayarları";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     var conference = ViewBag.Conference as ConferenceSystem.Web.Entities.Conference;
+    var currentCarouselImages = ViewBag.CurrentCarouselImages as List<string> ?? new List<string>();
 }
 
 <h1 class="mb-4">Ana Sayfa Ayarları</h1>
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>
 }
+
 @if (conference != null)
 {
     <div class="alert alert-info"><strong>Konferans:</strong> @conference.Name</div>
 }
-<form method="post">
+
+<form method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
     <input asp-for="ConferenceId" type="hidden" />
 
-    <div class="mb-3">
-        <label asp-for="HeroBadgeText" class="form-label">Hero Üst Etiket</label>
-        <input asp-for="HeroBadgeText" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="HeroTitle" class="form-label">Ana Başlık</label>
-        <input asp-for="HeroTitle" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="HeroDescription" class="form-label">Kısa Açıklama</label>
-        <textarea asp-for="HeroDescription" class="form-control" rows="5"></textarea>
-    </div>
+    <div class="card mb-4">
+        <div class="card-header"><strong>Üst Hero Alanı</strong></div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="HeroBadgeText" class="form-label">Hero Üst Etiket</label>
+                <input asp-for="HeroBadgeText" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="HeroTitle" class="form-label">Ana Başlık</label>
+                <input asp-for="HeroTitle" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="HeroDescription" class="form-label">Kısa Açıklama</label>
+                <textarea asp-for="HeroDescription" class="form-control" rows="5"></textarea>
+            </div>
 
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label asp-for="HeroPrimaryButtonText" class="form-label">1. Buton Metni</label>
-            <input asp-for="HeroPrimaryButtonText" class="form-control" />
-        </div>
-        <div class="col-md-6">
-            <label asp-for="HeroPrimaryButtonUrl" class="form-label">1. Buton Linki</label>
-            <input asp-for="HeroPrimaryButtonUrl" class="form-control" />
-        </div>
-        <div class="col-md-6">
-            <label asp-for="HeroSecondaryButtonText" class="form-label">2. Buton Metni</label>
-            <input asp-for="HeroSecondaryButtonText" class="form-control" />
-        </div>
-        <div class="col-md-6">
-            <label asp-for="HeroSecondaryButtonUrl" class="form-label">2. Buton Linki</label>
-            <input asp-for="HeroSecondaryButtonUrl" class="form-control" />
-        </div>
-    </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="HeroPrimaryButtonText" class="form-label">1. Buton Metni</label>
+                    <input asp-for="HeroPrimaryButtonText" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="HeroPrimaryButtonUrl" class="form-label">1. Buton Linki</label>
+                    <input asp-for="HeroPrimaryButtonUrl" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="HeroSecondaryButtonText" class="form-label">2. Buton Metni</label>
+                    <input asp-for="HeroSecondaryButtonText" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="HeroSecondaryButtonUrl" class="form-label">2. Buton Linki</label>
+                    <input asp-for="HeroSecondaryButtonUrl" class="form-control" />
+                </div>
+            </div>
 
-    <div class="mt-3 mb-3">
-        <label asp-for="PosterImageUrl" class="form-label">Poster Görsel URL</label>
-        <input asp-for="PosterImageUrl" class="form-control" />
-    </div>
-
-    <h5 class="mt-4">Öne Çıkan Bilgi Kutuları</h5>
-    <div class="row g-3">
-        <div class="col-md-4">
-            <input asp-for="HighlightBox1Title" class="form-control mb-2" placeholder="Kutucuk 1 Başlık" />
-            <input asp-for="HighlightBox1Value" class="form-control" placeholder="Kutucuk 1 Değer" />
-        </div>
-        <div class="col-md-4">
-            <input asp-for="HighlightBox2Title" class="form-control mb-2" placeholder="Kutucuk 2 Başlık" />
-            <input asp-for="HighlightBox2Value" class="form-control" placeholder="Kutucuk 2 Değer" />
-        </div>
-        <div class="col-md-4">
-            <input asp-for="HighlightBox3Title" class="form-control mb-2" placeholder="Kutucuk 3 Başlık" />
-            <input asp-for="HighlightBox3Value" class="form-control" placeholder="Kutucuk 3 Değer" />
+            <div class="mt-3">
+                <label asp-for="PosterImageUrl" class="form-label">Sağ Poster Görsel URL</label>
+                <input asp-for="PosterImageUrl" class="form-control" />
+            </div>
         </div>
     </div>
 
-    <h5 class="mt-4">İletişim Alanı</h5>
-    <div class="mb-3">
-        <label asp-for="ContactTitle" class="form-label">Başlık</label>
-        <input asp-for="ContactTitle" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="ContactHtml" class="form-label">İçerik (HTML destekler)</label>
-        <textarea asp-for="ContactHtml" class="form-control" rows="6"></textarea>
+    <div class="card mb-4">
+        <div class="card-header"><strong>Carousel Galerisi</strong></div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Yeni görseller ekle</label>
+                <input type="file" name="carouselImages" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" multiple />
+                <div class="form-text">Buraya yüklediğin görseller ana sayfadaki slider alanında otomatik gösterilir.</div>
+            </div>
+
+            @if (currentCarouselImages.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var image in currentCarouselImages)
+                    {
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <img src="@image" alt="Carousel görseli" class="card-img-top" style="height:180px; object-fit:cover;" />
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="removeCarouselImages" value="@image" id="remove_@Guid.NewGuid().ToString("N")" />
+                                        <label class="form-check-label">Bu görseli sil</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning mb-0">Henüz carousel görseli eklenmedi.</div>
+            }
+        </div>
     </div>
 
-    <h5 class="mt-4">Bölüm Göster/Gizle</h5>
-    <div class="form-check">
-        <input asp-for="ShowAnnouncements" class="form-check-input" />
-        <label asp-for="ShowAnnouncements" class="form-check-label">Duyuruları göster</label>
+    <div class="card mb-4">
+        <div class="card-header"><strong>Öne Çıkan Bilgi Kutuları</strong></div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input asp-for="HighlightBox1Title" class="form-control mb-2" placeholder="Kutucuk 1 Başlık" />
+                    <input asp-for="HighlightBox1Value" class="form-control" placeholder="Kutucuk 1 Değer" />
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="HighlightBox2Title" class="form-control mb-2" placeholder="Kutucuk 2 Başlık" />
+                    <input asp-for="HighlightBox2Value" class="form-control" placeholder="Kutucuk 2 Değer" />
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="HighlightBox3Title" class="form-control mb-2" placeholder="Kutucuk 3 Başlık" />
+                    <input asp-for="HighlightBox3Value" class="form-control" placeholder="Kutucuk 3 Değer" />
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-check">
-        <input asp-for="ShowImportantDates" class="form-check-input" />
-        <label asp-for="ShowImportantDates" class="form-check-label">Önemli tarihleri göster</label>
-    </div>
-    <div class="form-check">
-        <input asp-for="ShowRegistrationCategories" class="form-check-input" />
-        <label asp-for="ShowRegistrationCategories" class="form-check-label">Kayıt kategorilerini göster</label>
-    </div>
-    <div class="form-check">
-        <input asp-for="ShowSpeakers" class="form-check-input" />
-        <label asp-for="ShowSpeakers" class="form-check-label">Konuşmacıları göster</label>
-    </div>
-    <div class="form-check">
-        <input asp-for="ShowCommitteeMembers" class="form-check-input" />
-        <label asp-for="ShowCommitteeMembers" class="form-check-label">Kurulları göster</label>
-    </div>
-    <div class="form-check mb-4">
-        <input asp-for="ShowContact" class="form-check-input" />
-        <label asp-for="ShowContact" class="form-check-label">İletişim bölümünü göster</label>
+
+    <div class="card mb-4">
+        <div class="card-header"><strong>Alt Bilgi / İletişim</strong></div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="ContactTitle" class="form-label">İletişim Başlığı</label>
+                <input asp-for="ContactTitle" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="ContactHtml" class="form-label">İletişim HTML</label>
+                <textarea asp-for="ContactHtml" class="form-control" rows="5"></textarea>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4 form-check">
+                    <input asp-for="ShowAnnouncements" class="form-check-input" />
+                    <label asp-for="ShowAnnouncements" class="form-check-label">Duyuruları göster</label>
+                </div>
+                <div class="col-md-4 form-check">
+                    <input asp-for="ShowImportantDates" class="form-check-input" />
+                    <label asp-for="ShowImportantDates" class="form-check-label">Önemli tarihleri göster</label>
+                </div>
+                <div class="col-md-4 form-check">
+                    <input asp-for="ShowRegistrationCategories" class="form-check-input" />
+                    <label asp-for="ShowRegistrationCategories" class="form-check-label">Kayıt kategorilerini göster</label>
+                </div>
+                <div class="col-md-4 form-check">
+                    <input asp-for="ShowCommitteeMembers" class="form-check-input" />
+                    <label asp-for="ShowCommitteeMembers" class="form-check-label">Kurulları göster</label>
+                </div>
+                <div class="col-md-4 form-check">
+                    <input asp-for="ShowSpeakers" class="form-check-input" />
+                    <label asp-for="ShowSpeakers" class="form-check-label">Konuşmacıları göster</label>
+                </div>
+                <div class="col-md-4 form-check">
+                    <input asp-for="ShowContact" class="form-check-input" />
+                    <label asp-for="ShowContact" class="form-check-label">İletişimi göster</label>
+                </div>
+            </div>
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Kaydet</button>

@@ -31,7 +31,7 @@
     string BuildInitials(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "MT";
+            return "CS";
 
         var parts = value
             .Split(' ', StringSplitOptions.RemoveEmptyEntries)
@@ -84,31 +84,33 @@
 
     <style>
         :root {
-            --theme-primary: @Theme("Theme.Primary", "#B08A4A");
-            --theme-secondary: @Theme("Theme.Secondary", "#F5E6C8");
-            --theme-accent: @Theme("Theme.Accent", "#8D6A2B");
-            --theme-bg: @Theme("Theme.Background", "#F7F3EC");
-            --theme-surface: @Theme("Theme.Surface", "#FFFFFF");
-            --theme-border: @Theme("Theme.Border", "#E8D9BC");
-            --theme-heading: @Theme("Theme.Heading", "#6F4E1F");
-            --theme-text: @Theme("Theme.Text", "#40352A");
-            --theme-muted: @Theme("Theme.Muted", "#8C7A64");
-            --theme-header-bg: @Theme("Theme.HeaderBg", "#F3EEDF");
-            --theme-header-text: @Theme("Theme.HeaderText", "#6F4E1F");
-            --theme-footer-bg: @Theme("Theme.FooterBg", "#F3EEDF");
-            --theme-footer-text: @Theme("Theme.FooterText", "#6F4E1F");
-            --theme-button-bg: @Theme("Theme.ButtonBg", "#B08A4A");
+            --theme-primary: @Theme("Theme.Primary", "#7C5CFC");
+            --theme-secondary: @Theme("Theme.Secondary", "#D8CCFF");
+            --theme-accent: @Theme("Theme.Accent", "#22D3EE");
+            --theme-bg: @Theme("Theme.Background", "#0B1020");
+            --theme-surface: @Theme("Theme.Surface", "rgba(255,255,255,0.08)");
+            --theme-border: @Theme("Theme.Border", "rgba(255,255,255,0.14)");
+            --theme-heading: @Theme("Theme.Heading", "#F8FAFC");
+            --theme-text: @Theme("Theme.Text", "#D9E2F2");
+            --theme-muted: @Theme("Theme.Muted", "#9FB0CC");
+            --theme-header-bg: @Theme("Theme.HeaderBg", "rgba(11,16,32,0.75)");
+            --theme-header-text: @Theme("Theme.HeaderText", "#F8FAFC");
+            --theme-footer-bg: @Theme("Theme.FooterBg", "rgba(11,16,32,0.8)");
+            --theme-footer-text: @Theme("Theme.FooterText", "#CBD5E1");
+            --theme-button-bg: @Theme("Theme.ButtonBg", "#7C5CFC");
             --theme-button-text: @Theme("Theme.ButtonText", "#FFFFFF");
-            --theme-badge-bg: @Theme("Theme.BadgeBg", "#F8EACD");
-            --theme-badge-text: @Theme("Theme.BadgeText", "#8D6A2B");
+            --theme-badge-bg: @Theme("Theme.BadgeBg", "rgba(34,211,238,0.14)");
+            --theme-badge-text: @Theme("Theme.BadgeText", "#67E8F9");
         }
-
-        .page-wrapper { min-height: calc(100vh - 170px); }
     </style>
 </head>
-<body>
-    <header class="site-header-modern">
-        <div class="header-topline">
+<body class="glass-body">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-grid"></div>
+
+    <header style="display:none;" class="site-header-modern glass-header-shell">
+        <div class="header-topline glass-line">
             <div class="container d-flex justify-content-between align-items-center gap-3 flex-wrap">
                 <div class="header-topline-text">@topInfo</div>
                 <div class="header-topline-actions">
@@ -124,7 +126,7 @@
             </div>
         </div>
 
-        <nav class="navbar navbar-expand-xl main-navbar modern-navbar">
+        <nav class="navbar navbar-expand-xl modern-navbar glass-nav-shell">
             <div class="container">
                 <a class="navbar-brand brand-modern" href="/">
                     @if (!string.IsNullOrWhiteSpace(brandLogoUrl))
@@ -138,7 +140,7 @@
                         <span class="brand-logo-fallback">@brandInitials</span>
                     }
                     <span class="brand-text-wrap">
-                        <span class="brand-eyebrow">Konferans Platformu</span>
+                        <span class="brand-eyebrow">Conference Experience</span>
                         <span class="brand-title">@brandText</span>
                     </span>
                 </a>
@@ -185,16 +187,17 @@
     </header>
 
     <main class="page-wrapper">
-        <div class="container py-4">
+        <div class="container py-4 py-lg-5">
             @RenderBody()
         </div>
     </main>
 
-    <footer class="footer site-footer-modern">
+    <footer class="site-footer-modern glass-footer-shell">
         <div class="container text-center">© @DateTime.Now.Year - @(currentConference?.Name ?? "Conference System")</div>
     </footer>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
