@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Carousel Yönetimi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var conference = ViewBag.Conference as ConferenceSystem.Web.Entities.Conference;
+    var carouselImages = ViewBag.CarouselImages as List<string> ?? new List<string>();
+}
+
+<h1 class="mb-4">Carousel Yönetimi</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (conference != null)
+{
+    <div class="alert alert-info">
+        <strong>Konferans:</strong> @conference.Name
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="conferenceId" value="@(conference?.Id ?? 0)" />
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Yeni carousel görselleri yükle</label>
+                <input type="file" name="carouselImages" class="form-control" multiple accept=".jpg,.jpeg,.png,.webp,.gif" />
+                <div class="form-text">
+                    Buraya yüklediğin görseller ana sayfanın üst carousel alanında otomatik görünür.
+                </div>
+            </div>
+
+            @if (carouselImages.Any())
+            {
+                <div class="row g-3 mb-4">
+                    @foreach (var image in carouselImages)
+                    {
+                        var fileName = System.IO.Path.GetFileName(image);
+                        var checkboxId = "remove_" + Guid.NewGuid().ToString("N");
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <img src="@image" alt="Carousel görseli" class="card-img-top" style="height:220px; object-fit:cover;" />
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="removeCarouselImages" value="@fileName" id="@checkboxId" />
+                                        <label class="form-check-label" for="@checkboxId">Bu görseli sil</label>
+                                    </div>
+                                    <div class="small text-muted mt-2">@fileName</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-secondary mb-4">Henüz carousel görseli yüklenmedi.</div>
+            }
+
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+        </form>
+    </div>
+</div>

@@ -34,6 +34,7 @@ namespace ConferenceSystem.Web.Controllers
             var committeeMembers = new List<ConferenceSystem.Web.Entities.CommitteeMember>();
             var registrationCategories = new List<ConferenceSystem.Web.Entities.RegistrationCategory>();
             var speakers = new List<ConferenceSystem.Web.Entities.Speaker>();
+            var carouselImageUrls = new List<string>();
             ConferenceSystem.Web.Entities.HomePageSetting? homePageSetting = null;
 
             if (activeConference != null)
@@ -64,6 +65,16 @@ namespace ConferenceSystem.Web.Controllers
 
                 homePageSetting = await _context.HomePageSettings
                     .FirstOrDefaultAsync(x => x.ConferenceId == activeConference.Id);
+
+                var carouselFolder = Path.Combine(_environment.WebRootPath, "uploads", "home-carousel", activeConference.Id.ToString());
+                if (Directory.Exists(carouselFolder))
+                {
+                    carouselImageUrls = Directory.GetFiles(carouselFolder)
+                        .Where(path => IsSupportedImage(path))
+                        .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                        .Select(path => $"/uploads/home-carousel/{activeConference.Id}/{Path.GetFileName(path)}")
+                        .ToList();
+                }
             }
 
             var menuItems = await _context.MenuItems
@@ -119,7 +130,7 @@ namespace ConferenceSystem.Web.Controllers
 
             var finalTheme = themeDefaults.ToDictionary(x => x.Key, x => rawSettings.ContainsKey(x.Key) && !string.IsNullOrWhiteSpace(rawSettings[x.Key]) ? rawSettings[x.Key] : x.Value);
 
-            var carouselImageUrls = new List<string>();
+          
             if (activeConference != null)
             {
                 var carouselFolder = Path.Combine(_environment.WebRootPath, "uploads", "home-carousel", activeConference.Id.ToString());
@@ -149,6 +160,12 @@ namespace ConferenceSystem.Web.Controllers
             };
 
             return View(model);
+        }
+
+        private static bool IsSupportedImage(string path)
+        {
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return ext is ".jpg" or ".jpeg" or ".png" or ".webp" or ".gif";
         }
     }
 }

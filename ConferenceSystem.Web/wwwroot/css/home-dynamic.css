@@ -699,3 +699,195 @@
         display: none;
     }
 }
+
+
+/* --- Safe override: uploaded carousel fills the whole right visual block without breaking layout --- */
+.wire-slide-visual {
+    min-height: 320px;
+    display: flex;
+    align-items: stretch;
+}
+
+.wire-upload-carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.22);
+}
+
+.wire-upload-carousel-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .35s ease-in-out;
+    pointer-events: none;
+}
+
+.wire-upload-carousel-item.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.wire-upload-carousel-item .wire-slide-image {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
+
+.wire-upload-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,.88);
+    color: #8b5e20;
+    font-size: 1.6rem;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    z-index: 4;
+}
+
+.wire-upload-carousel-arrow.prev { left: 12px; }
+.wire-upload-carousel-arrow.next { right: 12px; }
+
+.wire-upload-carousel-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 4;
+}
+
+.wire-upload-carousel-dots button {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,.7);
+    padding: 0;
+}
+
+.wire-upload-carousel-dots button.is-active {
+    width: 28px;
+    background: linear-gradient(135deg, #c69343, #a67321);
+}
+
+@media (max-width: 900px) {
+    .wire-slide-visual,
+    .wire-upload-carousel,
+    .wire-upload-carousel-item .wire-slide-image {
+        min-height: 240px;
+    }
+
+    .wire-upload-carousel-arrow {
+        display: none;
+    }
+}
+
+
+/* carousel only hero */
+.wire-carousel-only-block {
+    width: 100%;
+    min-height: 360px;
+    position: relative;
+    z-index: 1;
+}
+
+.wire-upload-carousel-full {
+    width: 100%;
+    min-height: 360px;
+    height: 360px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.16);
+    position: relative;
+}
+
+.wire-upload-carousel-full .wire-upload-carousel-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .35s ease-in-out;
+    pointer-events: none;
+}
+
+.wire-upload-carousel-full .wire-upload-carousel-item.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.wire-upload-carousel-full .wire-slide-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
+
+.wire-upload-carousel-full .wire-upload-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px;
+    height: 46px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.88);
+    color: #8b5e20;
+    font-size: 1.7rem;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    z-index: 4;
+}
+
+.wire-upload-carousel-full .wire-upload-carousel-arrow.prev { left: 14px; }
+.wire-upload-carousel-full .wire-upload-carousel-arrow.next { right: 14px; }
+
+.wire-upload-carousel-full .wire-upload-carousel-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 4;
+}
+
+.wire-upload-carousel-full .wire-upload-carousel-dots button {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,.72);
+    padding: 0;
+}
+
+.wire-upload-carousel-full .wire-upload-carousel-dots button.is-active {
+    width: 28px;
+    background: linear-gradient(135deg, #c69343, #a67321);
+}
+
+@media (max-width: 900px) {
+    .wire-carousel-only-block,
+    .wire-upload-carousel-full {
+        min-height: 240px;
+        height: 240px;
+    }
+
+    .wire-upload-carousel-full .wire-upload-carousel-arrow {
+        display: none;
+    }
+}

@@ -92,87 +92,116 @@ else
         </div>
 
         <section class="wire-hero-carousel glass-wire">
-            <div class="wire-slider" id="wireHeroSlider">
-                <div class="wire-slide is-active">
-                    <div class="wire-slide-copy">
-                        <span class="wire-overline">Carousel Resim Galerisi</span>
-                        <h2>@conference.Name</h2>
-                        <p>@(!string.IsNullOrWhiteSpace(hp?.HeroDescription) ? hp!.HeroDescription : conference.Description)</p>
-                        <div class="wire-cta-row">
-                            <a class="wire-primary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonUrl) ? "/Submission/Create" : hp!.HeroPrimaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonText) ? "Özet Gönder" : hp!.HeroPrimaryButtonText)</a>
-                            <a class="wire-secondary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonUrl) ? $"/Program?conferenceId={conference.Id}" : hp!.HeroSecondaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonText) ? "Programı İncele" : hp!.HeroSecondaryButtonText)</a>
-                        </div>
-                    </div>
-                    <div class="wire-slide-visual">
-                        @if (!string.IsNullOrWhiteSpace(hp?.PosterImageUrl))
+            @if (Model.CarouselImageUrls.Any())
+            {
+                <div class="wire-carousel-only-block">
+                    <div class="wire-upload-carousel wire-upload-carousel-full" data-upload-carousel>
+                        @for (var i = 0; i < Model.CarouselImageUrls.Count; i++)
                         {
-                            <img src="@hp.PosterImageUrl" alt="Poster" class="wire-slide-image" />
+                            <div class="wire-upload-carousel-item @(i == 0 ? "is-active" : "")">
+                                <img src="@Model.CarouselImageUrls[i]" alt="Carousel görseli @(i + 1)" class="wire-slide-image" />
+                            </div>
                         }
-                        else if (!string.IsNullOrWhiteSpace(conference.LogoPath))
-                        {
-                            <img src="@conference.LogoPath" alt="@conference.Name" class="wire-slide-image wire-slide-image-logo" />
-                        }
-                        else
-                        {
-                            <div class="wire-slide-placeholder">Poster veya slider görseli burada görünecek.</div>
-                        }
-                    </div>
-                </div>
 
-                <div class="wire-slide">
-                    <div class="wire-slide-copy">
-                        <span class="wire-overline">Kongre Özeti</span>
-                        <h2>Ana vitrin</h2>
-                        <p>Kongreye ait önemli tarihler, program bilgileri ve başvuru bağlantıları bu alanda öne çıkarılır.</p>
-                        <div class="wire-slide-mini-grid">
-                            <article class="wire-slide-mini-card">
-                                <span>Özet Gönderim</span>
-                                <strong>@(Model.ImportantDates.FirstOrDefault()?.DateValue.ToString("dd MMMM yyyy") ?? "TBA")</strong>
-                            </article>
-                            <article class="wire-slide-mini-card">
-                                <span>Kongre Tarihi</span>
-                                <strong>@conference.StartDate.ToString("dd MMMM yyyy") - @conference.EndDate.ToString("dd MMMM yyyy")</strong>
-                            </article>
-                            <article class="wire-slide-mini-card">
-                                <span>Konum</span>
-                                <strong>@conference.Location</strong>
-                            </article>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="wire-slide">
-                    <div class="wire-slide-copy">
-                        <span class="wire-overline">Duyuru Özeti</span>
-                        <h2>Son gelişmeler</h2>
-                        @if (Model.Announcements.Any())
+                        @if (Model.CarouselImageUrls.Count > 1)
                         {
-                            <div class="wire-slide-list">
-                                @foreach (var item in Model.Announcements.Take(3))
+                            <button type="button" class="wire-upload-carousel-arrow prev" data-upload-prev aria-label="Önceki görsel">‹</button>
+                            <button type="button" class="wire-upload-carousel-arrow next" data-upload-next aria-label="Sonraki görsel">›</button>
+
+                            <div class="wire-upload-carousel-dots">
+                                @for (var i = 0; i < Model.CarouselImageUrls.Count; i++)
                                 {
-                                    <div class="wire-slide-list-item">
-                                        <strong>@item.Title</strong>
-                                        <span>@item.PublishDate.ToString("dd.MM.yyyy")</span>
-                                    </div>
+                                    <button type="button" class="@(i == 0 ? "is-active" : "")" data-upload-dot="@i" aria-label="Görsel @(i + 1)"></button>
                                 }
                             </div>
                         }
-                        else
-                        {
-                            <p>Henüz slider içinde gösterilecek duyuru eklenmedi.</p>
-                        }
                     </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="wire-slider" id="wireHeroSlider">
+                    <div class="wire-slide is-active">
+                        <div class="wire-slide-copy">
+                            <span class="wire-overline">Carousel Resim Galerisi</span>
+                            <h2>@conference.Name</h2>
+                            <p>@(!string.IsNullOrWhiteSpace(hp?.HeroDescription) ? hp!.HeroDescription : conference.Description)</p>
+                            <div class="wire-cta-row">
+                                <a class="wire-primary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonUrl) ? "/Submission/Create" : hp!.HeroPrimaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroPrimaryButtonText) ? "Özet Gönder" : hp!.HeroPrimaryButtonText)</a>
+                                <a class="wire-secondary-btn" href="@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonUrl) ? $"/Program?conferenceId={conference.Id}" : hp!.HeroSecondaryButtonUrl)">@(string.IsNullOrWhiteSpace(hp?.HeroSecondaryButtonText) ? "Programı İncele" : hp!.HeroSecondaryButtonText)</a>
+                            </div>
+                        </div>
+                        <div class="wire-slide-visual">
+                            @if (!string.IsNullOrWhiteSpace(hp?.PosterImageUrl))
+                            {
+                                <img src="@hp.PosterImageUrl" alt="Poster" class="wire-slide-image" />
+                            }
+                            else if (!string.IsNullOrWhiteSpace(conference.LogoPath))
+                            {
+                                <img src="@conference.LogoPath" alt="@conference.Name" class="wire-slide-image wire-slide-image-logo" />
+                            }
+                            else
+                            {
+                                <div class="wire-slide-placeholder">Poster veya slider görseli burada görünecek.</div>
+                            }
+                        </div>
+                    </div>
 
-            <button type="button" class="wire-slider-arrow prev" id="wireSliderPrev" aria-label="Önceki slide">‹</button>
-            <button type="button" class="wire-slider-arrow next" id="wireSliderNext" aria-label="Sonraki slide">›</button>
+                    <div class="wire-slide">
+                        <div class="wire-slide-copy">
+                            <span class="wire-overline">Kongre Özeti</span>
+                            <h2>Ana vitrin</h2>
+                            <p>Kongreye ait önemli tarihler, program bilgileri ve başvuru bağlantıları bu alanda öne çıkarılır.</p>
+                            <div class="wire-slide-mini-grid">
+                                <article class="wire-slide-mini-card">
+                                    <span>Özet Gönderim</span>
+                                    <strong>@(Model.ImportantDates.FirstOrDefault()?.DateValue.ToString("dd MMMM yyyy") ?? "TBA")</strong>
+                                </article>
+                                <article class="wire-slide-mini-card">
+                                    <span>Kongre Tarihi</span>
+                                    <strong>@conference.StartDate.ToString("dd MMMM yyyy") - @conference.EndDate.ToString("dd MMMM yyyy")</strong>
+                                </article>
+                                <article class="wire-slide-mini-card">
+                                    <span>Konum</span>
+                                    <strong>@conference.Location</strong>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="wire-slider-dots" id="wireSliderDots">
-                <button type="button" class="is-active" data-slide="0" aria-label="1. slide"></button>
-                <button type="button" data-slide="1" aria-label="2. slide"></button>
-                <button type="button" data-slide="2" aria-label="3. slide"></button>
-            </div>
+                    <div class="wire-slide">
+                        <div class="wire-slide-copy">
+                            <span class="wire-overline">Duyuru Özeti</span>
+                            <h2>Son gelişmeler</h2>
+                            @if (Model.Announcements.Any())
+                            {
+                                <div class="wire-slide-list">
+                                    @foreach (var item in Model.Announcements.Take(3))
+                                    {
+                                        <div class="wire-slide-list-item">
+                                            <strong>@item.Title</strong>
+                                            <span>@item.PublishDate.ToString("dd.MM.yyyy")</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p>Henüz slider içinde gösterilecek duyuru eklenmedi.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="wire-slider-arrow prev" id="wireSliderPrev" aria-label="Önceki slide">‹</button>
+                <button type="button" class="wire-slider-arrow next" id="wireSliderNext" aria-label="Sonraki slide">›</button>
+
+                <div class="wire-slider-dots" id="wireSliderDots">
+                    <button type="button" class="is-active" data-slide="0" aria-label="1. slide"></button>
+                    <button type="button" data-slide="1" aria-label="2. slide"></button>
+                    <button type="button" data-slide="2" aria-label="3. slide"></button>
+                </div>
+            }
         </section>
 
         <div class="wire-main-grid">

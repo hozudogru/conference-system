@@ -301,16 +301,17 @@
             </div>
 
             <div class="sidebar-section">
-                <a class="sidebar-parent @IsActive("/admin/committeemembers", "/admin/importantdates", "/admin/submissions", "/admin/registrationcategories", "/admin/speakers", "/admin/homepagesettings", "/admin/themesettings")" data-bs-toggle="collapse" href="#menuContent">
+                <a class="sidebar-parent @IsActive("/admin/committeemembers", "/admin/importantdates", "/admin/submissions", "/admin/registrationcategories", "/admin/speakers", "/admin/homepagesettings", "/admin/themesettings", "/admin/carouselmanagement")" data-bs-toggle="collapse" href="#menuContent">
                     <span class="sidebar-parent-left">
                         <i class="bi bi-folder2-open icon"></i>
                         <span>İçerik</span>
                     </span>
                     <i class="bi bi-chevron-down chevron"></i>
                 </a>
-                <div class="collapse @IsOpen("/admin/committeemembers", "/admin/importantdates", "/admin/submissions", "/admin/registrationcategories", "/admin/speakers", "/admin/homepagesettings", "/admin/themesettings")" id="menuContent">
+                <div class="collapse @IsOpen("/admin/committeemembers", "/admin/importantdates", "/admin/submissions", "/admin/registrationcategories", "/admin/speakers", "/admin/homepagesettings", "/admin/themesettings", "/admin/carouselmanagement")" id="menuContent">
                     <div class="sidebar-children">
                         <a class="sidebar-child @IsActive("/admin/homepagesettings")" href="/Admin/HomePageSettings/Edit">Ana Sayfa Ayarları</a>
+                        <a class="sidebar-child @IsActive("/admin/carouselmanagement")" href="/Admin/CarouselManagement">Carousel Yönetimi</a>
                         <a class="sidebar-child @IsActive("/admin/themesettings")" href="/Admin/ThemeSettings">Tema Ayarları</a>
                         <a class="sidebar-child @IsActive("/admin/registrationcategories")" href="/Admin/RegistrationCategories">Kayıt Kategorileri</a>
                         <a class="sidebar-child @IsActive("/admin/speakers")" href="/Admin/Speakers">Konuşmacılar</a>

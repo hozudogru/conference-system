@@ -51,8 +51,54 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    renderSlide(0);
-    startSlider();
+    if (slides.length > 1 && dotsWrap && prevBtn && nextBtn) {
+        renderSlide(0);
+        startSlider();
+    }
+
+
+    document.querySelectorAll('[data-upload-carousel]').forEach((carousel) => {
+        const items = Array.from(carousel.querySelectorAll('.wire-upload-carousel-item'));
+        const dots = Array.from(carousel.querySelectorAll('[data-upload-dot]'));
+        const prev = carousel.querySelector('[data-upload-prev]');
+        const next = carousel.querySelector('[data-upload-next]');
+        let current = 0;
+        let timer = null;
+
+        const render = (index) => {
+            if (!items.length) return;
+            current = (index + items.length) % items.length;
+            items.forEach((item, i) => item.classList.toggle('is-active', i === current));
+            dots.forEach((dot, i) => dot.classList.toggle('is-active', i === current));
+        };
+
+        const restart = () => {
+            if (timer) window.clearInterval(timer);
+            if (items.length > 1) {
+                timer = window.setInterval(() => render(current + 1), 4000);
+            }
+        };
+
+        prev?.addEventListener('click', () => {
+            render(current - 1);
+            restart();
+        });
+
+        next?.addEventListener('click', () => {
+            render(current + 1);
+            restart();
+        });
+
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                render(i);
+                restart();
+            });
+        });
+
+        render(0);
+        restart();
+    });
 
     const menu = document.getElementById('ajaxSidebarMenu');
     const defaultContent = document.getElementById('homeDefaultContent');
